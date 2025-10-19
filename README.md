@@ -1,2 +1,2 @@
-# Mission-Room-Hunt
-Room/PG/Hostel Finder Web Application - TYBSc Field Project.
+# CAMS
+the all-n-one course management system.
