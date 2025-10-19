@@ -1,7 +1,7 @@
 <?php
 // --- CAMS: Database Connection and Configuration (config.php) ---
 
-// Database Credentials (Member 1: CHECK THESE AGAINST YOUR LOCAL SETUP)
+// Database Credentials 
 define('DB_SERVER', 'localhost');
 define('DB_USERNAME', 'root'); 
 define('DB_PASSWORD', ''); // Leave blank if using default XAMPP/WAMP settings
