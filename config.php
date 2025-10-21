@@ -1,27 +1,50 @@
 <?php
+
 // ----------------------------------------
-// Database Configuration
-// !! CHANGE these values to match your local XAMPP/WAMP settings !!
+// Database Configuration and Constants
 // ----------------------------------------
+
+// Database Credentials 
 define('DB_SERVER', 'localhost');
-define('DB_USERNAME', 'root'); // Default for XAMPP/WAMP
-define('DB_PASSWORD', '');     // Default for XAMPP/WAMP (often blank)
-define('DB_NAME', 'cams_project');
+define('DB_USERNAME', 'root'); 
+define('DB_PASSWORD', ''); // Leave blank if using default XAMPP/WAMP settings
+define('DB_NAME', 'cams_project'); 
+
+// Application Constants
+define('ATTENDANCE_MIN_PERCENTAGE', 75); // The college's compliance threshold
+
+// ----------------------------------------
+// Database Connection (PDO)
+// ----------------------------------------
 
 // Attempt to connect to MySQL database
-$conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
-
-// Check connection
-if($conn === false){
-    die("ERROR: Could not connect to database. " . $conn->connect_error);
+try {
+    // Create a PDO connection object
+    $pdo = new PDO("mysql:host=" . DB_SERVER . ";dbname=" . DB_NAME, DB_USERNAME, DB_PASSWORD);
+    
+    // Set the PDO error mode to exception for better error handling
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
+    // Start session management for login/logout functionality
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+} catch (PDOException $e) {
+    // Kill the application if connection fails
+    die("ERROR: Could not connect to the database. Check config.php settings. " . $e->getMessage());
 }
 
 // ----------------------------------------
-// Global System Constants
+// Global Security and Utility Functions
 // ----------------------------------------
-// Define the 75% attendance threshold as a global constant
-define('ATTENDANCE_MIN_PERCENTAGE', 75);
 
-// Start the session (required for storing login data)
-session_start();
+function redirect($url) {
+    header("Location: " . $url);
+    exit();
+}
+
+function isLoggedIn() {
+    return isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true;
+}
+
 ?>
