@@ -1,0 +1,116 @@
+/* Basic Reset and Global Styles */
+* {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #f0f2f5; /* Light background */
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Container for Login Form */
+.wrapper {
+    width: 380px;
+    padding: 30px;
+    margin: 100px auto 0;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Dashboard Styles (for teacher_dashboard and student_dashboard) */
+.dashboard-wrapper {
+    width: 95%;
+    max-width: 1400px;
+    margin: 20px auto;
+    padding: 30px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h2, h1 {
+    text-align: center;
+    color: #007bff; /* Primary blue color */
+    margin-bottom: 25px;
+}
+
+/* Form Element Styles */
+label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 18px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+/* Button Styles */
+input[type="submit"],
+.btn {
+    background-color: #007bff;
+    color: white;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+}
+
+input[type="submit"]:hover,
+.btn:hover {
+    background-color: #0056b3;
+}
+
+/* Error and Alert Messages */
+.alert-danger {
+    color: #a94442;
+    background-color: #f2dede;
+    border: 1px solid #ebccd1;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+/* Dashboard Navigation/Logout Link */
+.header-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.logout-link {
+    text-decoration: none;
+    color: #dc3545; /* Red for logout */
+    font-weight: 600;
+    padding: 5px 10px;
+    border: 1px solid #dc3545;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.logout-link:hover {
+    background-color: #dc3545;
+    color: white;
+}
