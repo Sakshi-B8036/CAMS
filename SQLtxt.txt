@@ -1,0 +1,63 @@
+CREATE DATABASE cams;
+USE cams;
+
+CREATE TABLE users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    roll_no VARCHAR(20) NOT NULL UNIQUE,
+    name VARCHAR(100) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    user_role ENUM('A', 'T', 'S') NOT NULL, -- A=Admin, T=Teacher, S=Student
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE teachers (
+    teacher_id INT AUTO_INCREMENT PRIMARY KEY,
+    roll_no VARCHAR(20) NOT NULL,
+    department VARCHAR(100),
+    FOREIGN KEY (roll_no) REFERENCES users(roll_no) ON DELETE CASCADE
+);
+CREATE TABLE students (
+    student_id INT AUTO_INCREMENT PRIMARY KEY,
+    roll_no VARCHAR(20) NOT NULL,
+    class VARCHAR(50),
+    semester INT,
+    FOREIGN KEY (roll_no) REFERENCES users(roll_no) ON DELETE CASCADE
+);
+CREATE TABLE subjects (
+    subject_id INT AUTO_INCREMENT PRIMARY KEY,
+    subject_code VARCHAR(20) NOT NULL UNIQUE,
+    subject_name VARCHAR(100) NOT NULL,
+    teacher_id INT,
+    FOREIGN KEY (teacher_id) REFERENCES teachers(teacher_id) ON DELETE SET NULL
+);
+CREATE TABLE attendance (
+    attendance_id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    subject_code VARCHAR(20) NOT NULL,
+    session_date DATE NOT NULL,
+    status ENUM('P', 'A') NOT NULL,  -- P=Present, A=Absent
+    marked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
+    FOREIGN KEY (subject_code) REFERENCES subjects(subject_code) ON DELETE CASCADE
+);
+
+-- TEACHERS
+INSERT INTO users (roll_no, name, password, user_role)
+VALUES ('T101', 'Prof.M.Suryavanshi', 'password123', 'T');
+INSERT INTO users (roll_no, name, password, user_role)
+VALUES ('T102', 'Prof.S.Raut', 'password123', 'T');
+INSERT INTO users (roll_no, name, password, user_role)
+VALUES ('T103', 'Prof.S.Deshmukh ', 'password123', 'T');
+INSERT INTO users (roll_no, name, password, user_role)
+VALUES ('T104', 'Prof.S.Patil ', 'password123', 'T');
+INSERT INTO users (roll_no, name, password, user_role)
+VALUES ('T105', 'Prof.M.Rane', 'password123', 'T');
+INSERT INTO users (roll_no, name, password, user_role)
+VALUES ('T106', 'Prof.M.Patil ', 'password123', 'T');
+
+--STUDENTS
+INSERT INTO users (roll_no, name, password, user_role)
+VALUES ('S201', 'Sakshi bingardive', 'password123', 'S');
+INSERT INTO users (roll_no, name, password, user_role)
+VALUES ('S202', 'Soham Gaikwad', 'password123', 'S');
+
+
