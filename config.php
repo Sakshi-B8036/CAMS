@@ -8,7 +8,7 @@
 define('DB_SERVER', 'localhost');
 define('DB_USERNAME', 'root'); 
 define('DB_PASSWORD', ''); // Leave blank if using default XAMPP/WAMP settings
-define('DB_NAME', 'cams'); 
+define('DB_NAME', 'cams_project'); 
 
 // Application Constants
 define('ATTENDANCE_MIN_PERCENTAGE', 75); // The college's compliance threshold

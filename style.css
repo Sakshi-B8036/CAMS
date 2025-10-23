@@ -114,3 +114,65 @@ input[type="submit"]:hover,
     background-color: #dc3545;
     color: white;
 }
+
+/* --- Attendance Form/Table Styles (New Addition) --- */
+
+/* Targets the table in mark_attendance.php */
+.attendance-table {
+    width: 100%;
+    border-collapse: collapse; /* Merges table borders */
+    margin-top: 25px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+/* Header Row Styling */
+.attendance-table thead tr {
+    background-color: #007bff; /* Matches primary brand color */
+    color: white;
+    text-align: left;
+}
+
+/* Header Cells */
+.attendance-table th {
+    padding: 12px 15px;
+    font-weight: 600;
+}
+
+/* Body Cells and Rows */
+.attendance-table td {
+    padding: 10px 15px;
+    border: 1px solid #ddd; /* Light grey border */
+    vertical-align: middle;
+}
+
+/* Alternating Row Colors for readability */
+.attendance-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+/* Hover effect for rows */
+.attendance-table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Alignment for Status Column */
+.attendance-status-cell {
+    text-align: center;
+}
+
+/* Style for the Save Attendance Button Container */
+.attendance-submit-container {
+    margin-top: 30px;
+    text-align: center; /* Center the button */
+}
+
+/* Override the general .btn style for the Save button (making it green for a 'save' action) */
+.attendance-submit-container .btn {
+    /* Reuses most properties from the main .btn block */
+    background-color: #28a745; /* Green for success/save action */
+    width: 250px; /* Give the button a fixed, reasonable width */
+    margin: 0 auto; /* Center the fixed-width button */
+}
+
+.attendance-submit-container .btn:hover {
+    background-color: #218838;
+}
