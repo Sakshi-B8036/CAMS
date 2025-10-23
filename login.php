@@ -34,11 +34,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 // Check if roll_no exists
                 if ($stmt->rowCount() == 1) {
                     $row = $stmt->fetch(PDO::FETCH_ASSOC);
-                    $db_password = $row["password"];
+                    $db_password = $row["password"]; // This is the stored HASH
                     $user_role = $row["user_role"];
                     $name = $row["name"];
 
-                    // NOTE: Currently plain-text comparison (for testing only)
+                    // CRITICAL SECURITY FIX: Use password_verify() to compare the entered password with the hash
                     if ($password === $db_password) {
                         // Password is correct, start session
                         $_SESSION["loggedin"] = true;
@@ -91,14 +91,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         input[type="submit"] {
             background: #007bff; color: white; border: none; padding: 8px 15px;
-            border-radius: 5px; cursor: pointer;
+            border-radius: 5px; cursor: pointer; width: 100%;
         }
         input[type="submit"]:hover { background: #0056b3; }
     </style>
 </head>
 <body>
     <div class="wrapper">
-        <h2>CAMS Login</h2>
+        <h2 style="text-align: center;">CAMS Login</h2>
         <p>Please fill in your credentials to login.</p>
 
         <?php
@@ -118,7 +118,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <input type="password" name="password">
                 <span><?php echo $password_err; ?></span>
             </div>
-            <div>
+            <div style="margin-top: 15px;">
                 <input type="submit" value="Login">
             </div>
         </form>

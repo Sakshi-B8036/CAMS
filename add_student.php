@@ -38,11 +38,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt_user->execute();
 
                 // Insert into students table
-                $sql_student = "INSERT INTO students (roll_no, class, semester)
-                                VALUES (:roll_no, :class, :semester)";
+                $sql_student = "INSERT INTO students (roll_no, stream, semester)
+                                VALUES (:roll_no, :stream, :semester)";
                 $stmt_student = $pdo->prepare($sql_student);
                 $stmt_student->bindParam(":roll_no", $roll_no);
-                $stmt_student->bindParam(":class", $class);
+                $stmt_student->bindParam(":stream", $class);
                 $stmt_student->bindParam(":semester", $semester);
                 $stmt_student->execute();
 
