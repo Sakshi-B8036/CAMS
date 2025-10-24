@@ -17,28 +17,40 @@ if (empty($subject_code) || empty($session_date)) {
 $students = [];
 $subject_name = "";
 $error = "";
+$class_filter = "";
+$stream_filter = "";
 
 try {
-    // Get subject name for display
-    $sql_subject_name = "SELECT subject_name FROM subjects WHERE subject_code = :code";
-    $stmt_subject_name = $pdo->prepare($sql_subject_name);
-    $stmt_subject_name->bindParam(':code', $subject_code);
-    $stmt_subject_name->execute();
-    $subject_name = $stmt_subject_name->fetchColumn();
+    // 1. Get subject name AND class/stream for filtering
+    $sql_subject_info = "SELECT subject_name, class, stream FROM subjects WHERE subject_code = :code";
+    $stmt_subject_info = $pdo->prepare($sql_subject_info);
+    $stmt_subject_info->bindParam(':code', $subject_code);
+    $stmt_subject_info->execute();
+    $subject_info = $stmt_subject_info->fetch(PDO::FETCH_ASSOC);
 
-    // ✅ Fetch students list correctly
-    // Our students table: students (student_id, roll_no, class, semester)
-    // Join with users to get name
-    $sql_students = "SELECT s.student_id, u.roll_no, u.name, s.class, s.semester
+    if (!$subject_info) {
+        throw new Exception("Subject not found or not fully configured.");
+    }
+    $subject_name = $subject_info['subject_name'];
+    $class_filter = $subject_info['class'];
+    $stream_filter = $subject_info['stream'];
+    
+    // 2. Fetch students list using the class/stream filters (FIXED: Added WHERE clause)
+    $sql_students = "SELECT s.student_id, u.roll_no, u.name, s.class, s.stream
                      FROM students s
                      JOIN users u ON s.roll_no = u.roll_no
+                     WHERE s.class = :class_filter AND s.stream = :stream_filter
                      ORDER BY u.roll_no";
     $stmt_students = $pdo->prepare($sql_students);
+    $stmt_students->bindParam(':class_filter', $class_filter);
+    $stmt_students->bindParam(':stream_filter', $stream_filter);
     $stmt_students->execute();
     $students = $stmt_students->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
-    $error = "Database Error: Could not load class list. " . $e->getMessage();
+    $error = "Database Error: Could not load class list. SQLSTATE[" . $e->getCode() . "]: " . $e->getMessage();
+} catch (Exception $e) {
+    $error = "Application Error: " . $e->getMessage();
 }
 ?>
 
@@ -64,7 +76,7 @@ try {
         <?php endif; ?>
 
         <?php if (empty($students)) : ?>
-            <div class="alert-danger">No students found for this class.</div>
+            <div class="alert-danger">No students found for this class. (Filtering by Class: <?php echo htmlspecialchars($class_filter); ?> / Stream: <?php echo htmlspecialchars($stream_filter); ?>)</div>
         <?php else : ?>
             <form action="save_attendance.php" method="POST">
                 <input type="hidden" name="subject_code" value="<?php echo htmlspecialchars($subject_code); ?>">
@@ -76,8 +88,7 @@ try {
                             <th style="padding: 10px;">Roll No</th>
                             <th style="padding: 10px;">Student Name</th>
                             <th style="padding: 10px;">Class</th>
-                            <th style="padding: 10px;">Semester</th>
-                            <th style="padding: 10px;">Status</th>
+                            <th style="padding: 10px;">Stream</th> <th style="padding: 10px;">Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -86,8 +97,7 @@ try {
                                 <td style="padding: 10px;"><?php echo htmlspecialchars($student['roll_no']); ?></td>
                                 <td style="padding: 10px;"><?php echo htmlspecialchars($student['name']); ?></td>
                                 <td style="padding: 10px;"><?php echo htmlspecialchars($student['class']); ?></td>
-                                <td style="padding: 10px;"><?php echo htmlspecialchars($student['semester']); ?></td>
-                                <td style="padding: 10px; text-align: center;">
+                                <td style="padding: 10px;"><?php echo htmlspecialchars($student['stream']); ?></td> <td style="padding: 10px; text-align: center;">
                                     <label>
                                         <input type="radio" name="attendance[<?php echo $student['student_id']; ?>]" value="P" required checked> Present
                                     </label>

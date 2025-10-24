@@ -61,3 +61,107 @@ INSERT INTO users (roll_no, name, password, user_role)
 VALUES ('S202', 'Soham Gaikwad', 'password123', 'S');
 
 
+
+
+--NEW
+
+-- 1. DATABASE AND SCHEMA CREATION
+
+-- Create the database
+CREATE DATABASE IF NOT EXISTS cams;
+USE cams;
+
+-- Drop tables if they exist to ensure a clean start for re-runs
+DROP TABLE IF EXISTS attendance;
+DROP TABLE IF EXISTS subjects;
+DROP TABLE IF EXISTS students;
+DROP TABLE IF EXISTS teachers;
+DROP TABLE IF EXISTS users;
+
+-- Users Table
+CREATE TABLE users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    roll_no VARCHAR(20) NOT NULL UNIQUE,
+    name VARCHAR(100) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    user_role ENUM('A', 'T', 'S') NOT NULL, -- A=Admin, T=Teacher, S=Student
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Teachers Table
+CREATE TABLE teachers (
+    teacher_id INT AUTO_INCREMENT PRIMARY KEY,
+    roll_no VARCHAR(20) NOT NULL,
+    department VARCHAR(100),
+    FOREIGN KEY (roll_no) REFERENCES users(roll_no) ON DELETE CASCADE
+);
+
+-- Students Table (FIXED: Uses 'stream' for consistency with PHP filtering, instead of 'semester')
+CREATE TABLE students (
+    student_id INT AUTO_INCREMENT PRIMARY KEY,
+    roll_no VARCHAR(20) NOT NULL,
+    class VARCHAR(50), 
+    stream VARCHAR(50), 
+    FOREIGN KEY (roll_no) REFERENCES users(roll_no) ON DELETE CASCADE
+);
+
+-- Subjects Table (FIXED: Includes 'class' and 'stream' for PHP filtering)
+CREATE TABLE subjects (
+    subject_id INT AUTO_INCREMENT PRIMARY KEY,
+    subject_code VARCHAR(20) NOT NULL UNIQUE,
+    subject_name VARCHAR(100) NOT NULL,
+    class VARCHAR(50), 
+    stream VARCHAR(50), 
+    teacher_id INT,
+    FOREIGN KEY (teacher_id) REFERENCES teachers(teacher_id) ON DELETE SET NULL
+);
+
+-- Attendance Table
+CREATE TABLE attendance (
+    attendance_id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    subject_code VARCHAR(20) NOT NULL,
+    session_date DATE NOT NULL,
+    status ENUM('P', 'A') NOT NULL,
+    marked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
+    FOREIGN KEY (subject_code) REFERENCES subjects(subject_code) ON DELETE CASCADE
+);
+
+
+-- 2. POPULATE USERS (Your original data)
+
+INSERT INTO users (roll_no, name, password, user_role) VALUES 
+('T101', 'Prof.M.Suryavanshi', 'password123', 'T'),
+('T102', 'Prof.S.Raut', 'password123', 'T'),
+('T103', 'Prof.S.Deshmukh', 'password123', 'T'),
+('T104', 'Prof.S.Patil', 'password123', 'T'),
+('T105', 'Prof.M.Rane', 'password123', 'T'),
+('T106', 'Prof.M.Patil', 'password123', 'T'),
+('S201', 'Sakshi bingardive', 'password123', 'S'),
+('S202', 'Soham Gaikwad', 'password123', 'S');
+
+
+-- 3. CRITICAL: POPULATE TEACHERS TABLE (FIXED: Uses alias 'U' to resolve Ambiguous Column error)
+-- This creates the internal teacher_id (1, 2, 3...) required by the subjects table.
+INSERT INTO teachers (roll_no, department)
+SELECT U.roll_no, 'Computer Science' 
+FROM users AS U
+WHERE U.user_role = 'T'
+ON DUPLICATE KEY UPDATE teachers.roll_no = U.roll_no;
+
+
+-- 4. CRITICAL: POPULATE STUDENTS TABLE (FIXED: Uses alias 'U' to resolve Ambiguous Column error)
+-- This creates the student records required for attendance and filtering.
+INSERT INTO students (roll_no, class, stream)
+SELECT U.roll_no, 'Sem-1', 'CS' 
+FROM users AS U
+WHERE U.user_role = 'S'
+ON DUPLICATE KEY UPDATE students.roll_no = U.roll_no;
+
+
+-- 5. CRITICAL: POPULATE SUBJECTS (Assign to Internal Teacher ID 1, which corresponds to T101)
+-- This ensures the subject exists and is correctly assigned to the first teacher (T101) 
+-- and has the filtering data (class/stream).
+INSERT INTO subjects (subject_code, subject_name, class, stream, teacher_id)
+VALUES ('CS401', 'Database Management', 'Sem-1', 'CS', 1);
