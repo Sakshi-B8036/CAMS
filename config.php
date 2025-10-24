@@ -8,7 +8,7 @@
 define('DB_SERVER', 'localhost');
 define('DB_USERNAME', 'root'); 
 define('DB_PASSWORD', ''); // Leave blank if using default XAMPP/WAMP settings
-define('DB_NAME', 'cams_project'); 
+define('DB_NAME', 'cams'); 
 
 // Application Constants
 define('ATTENDANCE_MIN_PERCENTAGE', 75); // The college's compliance threshold
@@ -20,7 +20,7 @@ define('ATTENDANCE_MIN_PERCENTAGE', 75); // The college's compliance threshold
 // Attempt to connect to MySQL database
 try {
     // Create a PDO connection object
-    $pdo = new PDO("mysql:host=" . DB_SERVER . ";dbname=" . DB_NAME, DB_USERNAME, DB_PASSWORD);
+    $pdo = new PDO("mysql:host=" . DB_SERVER . ";port=3307;dbname=" . DB_NAME, DB_USERNAME, DB_PASSWORD);
     
     // Set the PDO error mode to exception for better error handling
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
