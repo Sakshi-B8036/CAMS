@@ -1,267 +1,111 @@
-<<<<<<< Updated upstream
 <?php
-
 require_once 'config.php';
 
-
-
-// Check if the user is logged in and is a Teacher/Admin (assuming T can add students)
-
-=======
-ani add_student 
-
-
-<?php
-
-require_once 'config.php';
-
-
-
-// Check if the user is logged in and is a Teacher/Admin (assuming T can add students)
-
->>>>>>> Stashed changes
+// Check if user is logged in and is a Teacher
 if (!isLoggedIn() || $_SESSION["user_role"] !== 'T') {
-
     redirect('login.php');
-
 }
-
-
 
 $error = "";
-
 $success = "";
 
-
-
-// ----------------------------------------
-
-// 1. Process Form Submission
-
-// ----------------------------------------
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-
-    
-
-    // Sanitize and validate input
-
+    // Sanitize input
     $roll_no = filter_input(INPUT_POST, 'roll_no', FILTER_SANITIZE_STRING);
-
     $name = filter_input(INPUT_POST, 'student_name', FILTER_SANITIZE_STRING);
-
     $class = filter_input(INPUT_POST, 'class', FILTER_SANITIZE_STRING);
+    $stream = filter_input(INPUT_POST, 'stream', FILTER_SANITIZE_STRING);
+    $semester = filter_input(INPUT_POST, 'semester', FILTER_SANITIZE_STRING);
+    $password = $_POST['password'];
 
-    // CRITICAL FIX: The form uses 'semester', but the DB schema uses 'stream'. 
-
-    $stream = filter_input(INPUT_POST, 'semester', FILTER_SANITIZE_STRING); 
-
-    $password = $_POST['password']; 
-
-
-
-    if (empty($roll_no) || empty($name) || empty($class) || empty($stream) || empty($password)) {
-
-        $error = "Error: All fields are required.";
-
+    if (empty($roll_no) || empty($name) || empty($class) || empty($stream) || empty($semester) || empty($password)) {
+        $error = "⚠️ All fields are required.";
     } else {
-
-        // Use the plaintext password for consistency with the rest of your system
-
-        $insert_password = $password; 
-
-
-
         try {
-
             $pdo->beginTransaction();
 
-
-
-            // 2. Insert into the USERS table (for login)
-
-            $sql_user = "INSERT INTO users (roll_no, name, password, user_role) 
-
+            // 1️⃣ Add to users table
+            $sql_user = "INSERT INTO users (roll_no, name, password, user_role)
                          VALUES (:roll, :name, :password, 'S')";
-
             $stmt_user = $pdo->prepare($sql_user);
+            $stmt_user->execute([
+                ':roll' => $roll_no,
+                ':name' => $name,
+                ':password' => $password   
+            ]);
 
-            $stmt_user->bindParam(':roll', $roll_no);
-
-            $stmt_user->bindParam(':name', $name);
-
-            $stmt_user->bindParam(':password', $insert_password);
-
-            $stmt_user->execute();
-
-
-
-            // 3. Insert into the STUDENTS table (for class filtering)
-
-            $sql_student = "INSERT INTO students (roll_no, class, stream) 
-
-                            VALUES (:roll, :class, :stream_val)";
-
+            // 2️⃣ Add to students table
+            $sql_student = "INSERT INTO students (roll_no, class, stream, semester)
+                            VALUES (:roll, :class, :stream, :semester)";
             $stmt_student = $pdo->prepare($sql_student);
-
-            $stmt_student->bindParam(':roll', $roll_no);
-
-            $stmt_student->bindParam(':class', $class);
-
-            $stmt_student->bindParam(':stream_val', $stream); // Mapping 'semester' input to 'stream' column
-
-            $stmt_student->execute();
-
-
+            $stmt_student->execute([
+                ':roll' => $roll_no,
+                ':class' => $class,
+                ':stream' => $stream,
+                ':semester' => $semester
+            ]);
 
             $pdo->commit();
-
-            
-
-<<<<<<< Updated upstream
-            $success = "Student **$roll_no ($name)** added successfully.";
-=======
-            $success = "Student *$roll_no ($name)* added successfully.";
->>>>>>> Stashed changes
-
-            // Optionally redirect after success: redirect('teacher_dashboard.php');
-
-
-
+            $success = "✅ Student <b>$roll_no ($name)</b> added successfully.";
         } catch (PDOException $e) {
-
             $pdo->rollBack();
-
-            
-
-            // Handle duplicate roll number error (Error Code 23000 is common for duplicates)
-
             if ($e->getCode() === '23000') {
-
-<<<<<<< Updated upstream
-                 $error = "Error: Roll Number **$roll_no** already exists in the system.";
-=======
-                 $error = "Error: Roll Number *$roll_no* already exists in the system.";
->>>>>>> Stashed changes
-
+                $error = "⚠️ Roll Number <b>$roll_no</b> already exists.";
             } else {
-
-                 $error = "Database error: Could not add student. " . $e->getMessage();
-
+                $error = "❌ Database error: " . $e->getMessage();
             }
-
         }
-
     }
-
 }
-
 ?>
 
-
-
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Add New Student</title>
-
-    <link rel="stylesheet" href="style.css"> 
-
-    <style> /* Basic styling for demonstration/readability */
-
-        .container { max-width: 400px; margin: 50px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; text-align: center; }
-
-        input[type="text"], input[type="password"] { width: 100%; padding: 10px; margin: 8px 0; box-sizing: border-box; }
-
-        .alert-success { color: green; margin-bottom: 15px; }
-
-        .alert-danger { color: red; margin-bottom: 15px; }
-
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { font-family: Arial; background: #f9f9f9; }
+        .container { max-width: 400px; margin: 50px auto; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 0 8px rgba(0,0,0,0.1); }
+        input, select { width: 100%; padding: 8px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; }
+        button { background: #007bff; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; width: 100%; }
+        button:hover { background: #0056b3; }
+        .alert-success { color: green; margin-bottom: 10px; }
+        .alert-danger { color: red; margin-bottom: 10px; }
     </style>
-
 </head>
-
 <body>
-
     <div class="container">
+        <h2>Add New Student</h2>
 
-        <div class="header-nav">
+        <?php if (!empty($error)) echo "<div class='alert-danger'>$error</div>"; ?>
+        <?php if (!empty($success)) echo "<div class='alert-success'>$success</div>"; ?>
 
-            <h2>Add New Student</h2>
+        <form action="" method="POST">
+            <label>Roll Number</label>
+            <input type="text" name="roll_no" required>
 
-        </div>
+            <label>Student Name</label>
+            <input type="text" name="student_name" required>
 
+            <label>Class</label>
+            <input type="text" name="class" required>
 
+            <label>Stream</label>
+            <input type="text" name="stream" required>
 
-        <?php if (!empty($error)): ?>
+            <label>Semester</label>
+            <input type="text" name="semester" required>
 
-            <div class="alert-danger"><?php echo $error; ?></div>
+            <label>Password</label>
+            <input type="password" name="password" value="12345" required>
 
-        <?php endif; ?>
-
-        <?php if (!empty($success)): ?>
-
-            <div class="alert-success"><?php echo $success; ?></div>
-
-        <?php endif; ?>
-
-
-
-        <form action="add_student.php" method="POST"> 
-
-            
-
-            <label for="roll_no">Roll Number:</label>
-
-            <input type="text" id="roll_no" name="roll_no" required>
-
-            
-
-            <label for="student_name">Student Name:</label>
-
-            <input type="text" id="student_name" name="student_name" required>
-
-            
-
-            <label for="class">Class:</label>
-
-            <input type="text" id="class" name="class" required>
-
-            
-
-            <label for="semester">Stream/Semester:</label>
-
-            <input type="text" id="semester" name="semester" required> 
-
-            
-
-            <label for="password">Password:</label>
-
-            <input type="password" id="password" name="password" required>
-
-            
-
-            <button type="submit" class="btn">Add Student</button>
-
-            
-
-            <a href="teacher_dashboard.php" style="display: block; margin-top: 15px;">← Back to Dashboard</a>
-
+            <button type="submit">Add Student</button>
         </form>
 
+        <p style="margin-top: 15px;"><a href="teacher_dashboard.php">← Back to Dashboard</a></p>
     </div>
-
 </body>
-
-<<<<<<< Updated upstream
 </html>
-=======
-</html>
->>>>>>> Stashed changes
