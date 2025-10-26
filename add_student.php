@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 <?php
 
 require_once 'config.php';
@@ -6,6 +7,19 @@ require_once 'config.php';
 
 // Check if the user is logged in and is a Teacher/Admin (assuming T can add students)
 
+=======
+ani add_student 
+
+
+<?php
+
+require_once 'config.php';
+
+
+
+// Check if the user is logged in and is a Teacher/Admin (assuming T can add students)
+
+>>>>>>> Stashed changes
 if (!isLoggedIn() || $_SESSION["user_role"] !== 'T') {
 
     redirect('login.php');
@@ -104,7 +118,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             
 
+<<<<<<< Updated upstream
             $success = "Student **$roll_no ($name)** added successfully.";
+=======
+            $success = "Student *$roll_no ($name)* added successfully.";
+>>>>>>> Stashed changes
 
             // Optionally redirect after success: redirect('teacher_dashboard.php');
 
@@ -120,7 +138,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             if ($e->getCode() === '23000') {
 
+<<<<<<< Updated upstream
                  $error = "Error: Roll Number **$roll_no** already exists in the system.";
+=======
+                 $error = "Error: Roll Number *$roll_no* already exists in the system.";
+>>>>>>> Stashed changes
 
             } else {
 
@@ -238,4 +260,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 </body>
 
+<<<<<<< Updated upstream
 </html>
+=======
+</html>
+>>>>>>> Stashed changes
