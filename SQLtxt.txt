@@ -165,3 +165,66 @@ ON DUPLICATE KEY UPDATE students.roll_no = U.roll_no;
 -- and has the filtering data (class/stream).
 INSERT INTO subjects (subject_code, subject_name, class, stream, teacher_id)
 VALUES ('CS401', 'Database Management', 'Sem-1', 'CS', 1);
+
+
+
+
+
+
+
+
+--NEW
+
+
+-- 1. MARK ATTENDANCE CLASS LIST QUERY (mark_attendance.php)
+-- Loads unique students for the marking form.
+SELECT DISTINCT s.student_id, u.roll_no, u.name, s.class, s.stream
+FROM students s
+JOIN users u ON s.roll_no = u.roll_no
+WHERE s.class = :class_filter AND s.stream = :stream_filter
+ORDER BY u.roll_no;
+
+
+-- 2. ATTENDANCE SAVING QUERIES (save_attendance.php)
+
+-- 2a. Retrieve Student ID (Run first to get :s_id from :roll)
+SELECT student_id FROM students WHERE roll_no = :roll;
+
+-- 2b. Insert Attendance Record (Uses the fetched :s_id)
+INSERT INTO attendance (student_id, subject_code, session_date, status) 
+VALUES (:s_id, :subject, :session_date, :status);
+
+
+-- 3. STUDENT REGISTRATION QUERIES (add_student.php)
+
+-- 3a. Insert into USERS table
+INSERT INTO users (roll_no, name, password, user_role) 
+VALUES (:roll, :name, :password, 'S');
+
+-- 3b. Insert into STUDENTS table
+INSERT INTO students (roll_no, class, stream) 
+VALUES (:roll, :class, :stream_val);
+
+
+-- 4. STUDENT DASHBOARD QUERIES (student_dashboard.php)
+
+-- 4a. Retrieve Student ID (Run first to get :s_id from :roll)
+SELECT student_id FROM students WHERE roll_no = :roll;
+
+-- 4b. Attendance Summary Query (Uses fetched :s_id)
+SELECT 
+    COUNT(status) AS total_sessions,
+    SUM(CASE WHEN status = 'P' THEN 1 ELSE 0 END) AS sessions_present
+FROM attendance
+WHERE student_id = :s_id;
+
+-- 4c. Detailed History Query (Uses fetched :s_id)
+SELECT 
+    a.session_date, 
+    a.status, 
+    s.subject_name, 
+    s.subject_code 
+FROM attendance a
+JOIN subjects s ON a.subject_code = s.subject_code
+WHERE a.student_id = :s_id
+ORDER BY a.session_date DESC;
