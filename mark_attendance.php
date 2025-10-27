@@ -35,12 +35,12 @@ try {
     $class_filter = $subject_info['class'];
     $stream_filter = $subject_info['stream'];
     
-    // 2. Fetch students list using the class/stream filters (FIXED: Added WHERE clause)
-    $sql_students = "SELECT s.student_id, u.roll_no, u.name, s.class, s.stream
-                     FROM students s
-                     JOIN users u ON s.roll_no = u.roll_no
-                     WHERE s.class = :class_filter AND s.stream = :stream_filter
-                     ORDER BY u.roll_no";
+    // 2. Fetch students list using the class/stream filters 
+   $sql_students = "SELECT DISTINCT s.student_id, u.roll_no, u.name, s.class, s.stream
+                 FROM students s
+                 JOIN users u ON s.roll_no = u.roll_no
+                 WHERE s.class = :class_filter AND s.stream = :stream_filter
+                 ORDER BY u.roll_no";
     $stmt_students = $pdo->prepare($sql_students);
     $stmt_students->bindParam(':class_filter', $class_filter);
     $stmt_students->bindParam(':stream_filter', $stream_filter);
@@ -88,25 +88,24 @@ try {
                             <th style="padding: 10px;">Roll No</th>
                             <th style="padding: 10px;">Student Name</th>
                             <th style="padding: 10px;">Class</th>
-                            <th style="padding: 10px;">Stream</th> <th style="padding: 10px;">Status</th>
+                            <th style="padding: 10px;">Stream</th> 
+                            <th style="padding: 10px;">Status</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($students as $student) : ?>
-                            <tr>
-                                <td style="padding: 10px;"><?php echo htmlspecialchars($student['roll_no']); ?></td>
-                                <td style="padding: 10px;"><?php echo htmlspecialchars($student['name']); ?></td>
-                                <td style="padding: 10px;"><?php echo htmlspecialchars($student['class']); ?></td>
-                                <td style="padding: 10px;"><?php echo htmlspecialchars($student['stream']); ?></td> <td style="padding: 10px; text-align: center;">
-                                    <label>
-                                        <input type="radio" name="attendance[<?php echo $student['student_id']; ?>]" value="P" required checked> Present
-                                    </label>
-                                    <label style="margin-left: 20px;">
-                                        <input type="radio" name="attendance[<?php echo $student['student_id']; ?>]" value="A" required> Absent
-                                    </label>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
+                    <?php foreach ($students as $student): ?>
+                    <tr>
+                        <td style="padding: 10px;"><?php echo htmlspecialchars($student['roll_no']); ?></td>
+                        <td style="padding: 10px;"><?php echo htmlspecialchars($student['name']); ?></td>
+                        <td style="padding: 10px;"><?php echo htmlspecialchars($student['class']); ?></td>
+                        <td style="padding: 10px;"><?php echo htmlspecialchars($student['stream']); ?></td>
+                        
+                        <td style="padding: 10px;">
+                            <label><input type="radio" name="status[<?php echo $student['roll_no']; ?>]" value="P" required> Present</label><br>
+                            <label><input type="radio" name="status[<?php echo $student['roll_no']; ?>]" value="A"> Absent</label>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
                     </tbody>
                 </table>
 

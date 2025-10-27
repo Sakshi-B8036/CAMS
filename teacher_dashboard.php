@@ -43,6 +43,11 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teacher Dashboard</title>
     <link rel="stylesheet" href="style.css">
+    <style> /* Basic styling for demonstration/readability */
+        .dashboard-wrapper { max-width: 800px; margin: 50px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; text-align: center; }
+        .alert-danger { color: red; margin-bottom: 15px; }
+        .btn { padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; }
+    </style>
 </head>
 <body>
     <div class="dashboard-wrapper">
@@ -76,11 +81,15 @@ try {
         <?php endif; ?>
 
         <hr>
-        <div style="margin-top: 30px; text-align: center;">
+        <div style="margin-top: 30px; text-align: center; display: flex; justify-content: center; gap: 20px;">
             <a href="add_student.php" class="btn" style="text-decoration:none; padding:10px 20px; background-color:#007bff; color:white; border-radius:5px;">
                 ➕ Add New Student
             </a>
-        </div>
+            
+            <a href="add_subject.php" class="btn" style="text-decoration:none; padding:10px 20px; background-color:#28a745; color:white; border-radius:5px;">
+                📚 Add New Subject
+            </a>
+            </div>
     </div>
 </body>
 </html>
