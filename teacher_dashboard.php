@@ -79,7 +79,14 @@ try {
                 <input type="submit" value="Load Class List" class="btn">
             </form>
         <?php endif; ?>
-
+            <hr>
+<div style="margin-top: 20px; text-align: center;">
+    <a href="view_attendance.php" 
+       class="btn"
+       style="text-decoration:none; padding:10px 20px; background-color:#28a745; color:white; border-radius:5px;">
+       📅 View Attendance Records
+    </a>
+</div>
         <hr>
         <div style="margin-top: 30px; text-align: center; display: flex; justify-content: center; gap: 20px;">
             <a href="add_student.php" class="btn" style="text-decoration:none; padding:10px 20px; background-color:#007bff; color:white; border-radius:5px;">
