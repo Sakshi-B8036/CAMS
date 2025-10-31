@@ -1,6 +1,9 @@
 <?php
 // Include the database connection file
 require_once "config.php";
+$role = $_GET['role'] ?? '';
+$role_name = $role === 'A' ? 'Admin' : ($role === 'T' ? 'Teacher' : 'Student');
+
 
 // Initialize variables
 $roll_no = $password = "";
@@ -98,7 +101,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
     <div class="wrapper">
-        <h2 style="text-align: center;">CAMS Login</h2>
+        <h2 style="text-align:center;">CAMS <?php echo htmlspecialchars($role_name); ?> Login</h2>
         <p>Please fill in your credentials to login.</p>
 
         <?php
