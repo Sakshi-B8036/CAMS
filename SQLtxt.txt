@@ -228,3 +228,12 @@ FROM attendance a
 JOIN subjects s ON a.subject_code = s.subject_code
 WHERE a.student_id = :s_id
 ORDER BY a.session_date DESC;
+
+CREATE TABLE contact_messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    subject VARCHAR(150) NOT NULL,
+    message TEXT NOT NULL,
+    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

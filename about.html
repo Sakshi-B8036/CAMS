@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>About Us - Innovatech Solutions</title>
+  <style>
+      body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #916da0ff, #3498db);
+      color: #333;
+    }
+
+    header {
+      background: rgba(0, 0, 0, 0.3);
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      color: #4d8bc8;
+    }
+
+    nav ul.nav-links {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    nav ul.nav-links li a {
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      padding: 0.4rem 0.8rem;
+      border-radius: 4px;
+      transition: background-color 0.3s ease;
+    }
+
+    nav ul.nav-links li a:hover,
+    nav ul.nav-links li a.active {
+      background-color: #1abc9c;
+      color: white;
+    }
+    .about-us {
+  height: 100vh;
+  background: linear-gradient(135deg, #74617c, #614aac);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+}
+
+.about-content {
+  max-width: 800px;
+  animation: fadeIn 1.5s ease-in;
+}
+
+.about-content h2 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.about-content p {
+  font-size: 1.2rem;
+  line-height: 1.8;
+}
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.3);
+      color: white;
+      margin-top: 3rem;
+    }
+
+    footer p:hover {
+      cursor: pointer;
+      color: #4d8bc8;
+    }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+  </style>
+</head>
+<body>
+  <header>
+    <h1>CAMS Portal</h1>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="index.php">Home</a></li>
+        <li><a href="about.html"class="active">About</a></li>
+        <li><a href="team.php">Our Team</a></li>
+        <li><a href="contact.php">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+   <section class="about-us">
+  <div class="about-content">
+    <h2>About Us</h2>
+    <p>The College Attendance Management System (CAMS) is an intelligent web-based solution designed to simplify and automate the process of tracking student attendance. It provides a unified digital platform for administrators, teachers, and students to manage records efficiently, ensuring accuracy, transparency, and real-time accessibility. Through role-based dashboards, CAMS empowers teachers to mark attendance seamlessly, allows administrators to oversee overall statistics and performance analytics, and enables students to monitor their own progress. By replacing traditional manual methods, CAMS enhances productivity, reduces paperwork, and supports a smarter, more connected academic environment.</p>
+  </div>
+</section>
+  </main>
+  <footer>
+    <p>© 2025 CAMS | College Attendance Management System | All Rights Reserved</p>
+  </footer>
+</body>
+</html>
