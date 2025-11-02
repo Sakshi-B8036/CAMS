@@ -1,8 +1,14 @@
 <?php
 // Include the database connection file
 require_once "config.php";
+
+// Start session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 $role = $_GET['role'] ?? '';
-$role_name = $role === 'A' ? 'Admin' : ($role === 'T' ? 'Teacher' : 'Student');
+$role_name = $role === 'A' ? 'Admin' : ($role === 'T' ? 'Teacher' : ($role === 'S' ? 'Student' : 'User'));
 
 
 // Initialize variables
@@ -37,11 +43,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 // Check if roll_no exists
                 if ($stmt->rowCount() == 1) {
                     $row = $stmt->fetch(PDO::FETCH_ASSOC);
-                    $db_password = $row["password"]; // This is the stored HASH
+                    $db_password = $row["password"]; // Stored PLAIN TEXT password
                     $user_role = $row["user_role"];
                     $name = $row["name"];
 
-                    // CRITICAL SECURITY FIX: Use password_verify() to compare the entered password with the hash
+                    // Comparison for PLAIN TEXT password
                     if ($password === $db_password) {
                         // Password is correct, start session
                         $_SESSION["loggedin"] = true;
@@ -75,35 +81,176 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CAMS Login</title>
-    <link rel="stylesheet" href="style.css">
     <style>
-        body { font: 14px sans-serif; background-color: #f9f9f9; }
+        /* Base Styles and Light Background Gradient */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            /* Vibrant, light background */
+            background: linear-gradient(to top right, #83c4f5ff 0%, #ffffffff 100%); 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+            /* CRITICAL: Allows absolute positioning of the back button relative to the viewport */
+            position: relative; 
+        }
+        
+        /* New Back Button Style */
+        .back-button {
+            /* Positioned at the top-left */
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            text-decoration: none;
+            color: #007bff;
+            font-weight: 600;
+            padding: 10px 15px;
+            border: 1px solid #007bff;
+            border-radius: 8px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .back-button:hover {
+            background-color: #e9f5ff;
+            box-shadow: 0 4px 8px rgba(0, 50, 100, 0.15);
+        }
+
+        /* Wrapper/Card Style */
         .wrapper {
-            width: 350px; padding: 20px; margin: 80px auto;
-            border: 1px solid #ccc; border-radius: 10px; background: #fff;
-            box-shadow: 0px 0px 8px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px; 
+            padding: 40px; 
+            border-radius: 16px; 
+            background: #d0e0f8ff; 
+            /* Subtle but noticeable shadow */
+            box-shadow: 0 10px 30px rgba(0, 50, 100, 0.1); 
+            text-align: center;
+            /* Animated entry */
+            transform: translateY(20px); 
+            opacity: 0;
+            animation: fadeInSlide 0.6s ease-out forwards;
         }
-        .alert-danger {
-            color: #721c24; background-color: #f8d7da;
-            border-color: #f5c6cb; padding: 10px; border-radius: 5px;
-            margin-bottom: 10px;
+
+        /* Card Animation Keyframes */
+        @keyframes fadeInSlide {
+            to { transform: translateY(0); opacity: 1; }
         }
+
+        /* Header and Title */
+        .logo-header {
+            font-size: 42px;
+            font-weight: 800;
+            color: #007bff; /* College Blue */
+            margin-bottom: 0px;
+            letter-spacing: -1px;
+        }
+        .role-subtitle {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 30px;
+            font-weight: 400;
+        }
+
+        /* Input Group */
+        .input-group {
+            position: relative;
+            margin-top: 20px;
+        }
+        .input-group label {
+            display: block;
+            text-align: left;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #444;
+            font-size: 14px;
+        }
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 45px; /* Aligns with input padding */
+            color: #007bff; /* Icon color matches brand color */
+            font-style: normal; 
+            font-size: 18px;
+        }
+
+        /* Input Fields */
         input[type="text"], input[type="password"] {
-            width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px;
+            width: 100%; 
+            padding: 15px 15px 15px 50px; /* Space for the icon */
+            border: 1px solid #ddd; 
+            border-radius: 10px; 
+            box-sizing: border-box;
+            font-size: 16px;
+            background: #fcfcfc;
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
+        input[type="text"]:focus, input[type="password"]:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+        }
+
+        /* Error Spans */
+        .error-span {
+            display: block;
+            color: #dc3545; 
+            font-size: 12px;
+            text-align: left;
+            margin-top: 5px;
+        }
+
+        /* Submit Button */
         input[type="submit"] {
-            background: #007bff; color: white; border: none; padding: 8px 15px;
-            border-radius: 5px; cursor: pointer; width: 100%;
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            padding: 15px 15px;
+            border-radius: 10px; 
+            cursor: pointer; 
+            width: 100%;
+            font-size: 18px;
+            font-weight: 700;
+            margin-top: 35px;
+            transition: background 0.3s ease, transform 0.1s ease;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
         }
-        input[type="submit"]:hover { background: #0056b3; }
+        input[type="submit"]:hover { 
+            background: #0056b3; 
+            transform: translateY(-2px); /* Lift button slightly on hover */
+            box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4);
+        }
+
+        /* Alert/Error Message */
+        .alert-danger {
+            color: #721c24; 
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb; 
+            padding: 12px; 
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
-    <div class="wrapper">
-        <h2 style="text-align:center;">CAMS <?php echo htmlspecialchars($role_name); ?> Login</h2>
-        <p>Please fill in your credentials to login.</p>
+    
+    <a href="index.php" class="back-button">
+        <span>&#8592;</span> Back to Index
+    </a>
 
+    <div class="wrapper">
+        <h1 class="logo-header">CAMS</h1>
+        <p class="role-subtitle">Attendance Management System - <?php echo htmlspecialchars($role_name); ?> Login</p>
+        
         <?php
         if (!empty($login_err)) {
             echo '<div class="alert-danger">' . $login_err . '</div>';
@@ -111,18 +258,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         ?>
 
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-            <div>
-                <label>Roll Number</label>
-                <input type="text" name="roll_no" value="<?php echo htmlspecialchars($roll_no); ?>">
-                <span><?php echo $roll_no_err; ?></span>
+            
+            <div class="input-group">
+                <label for="roll_no">Roll Number</label>
+                <i>&#127380;</i> <input type="text" id="roll_no" name="roll_no" value="<?php echo htmlspecialchars($roll_no); ?>" placeholder="Enter your Roll No">
+                <span class="error-span"><?php echo $roll_no_err; ?></span>
             </div>
-            <div>
-                <label>Password</label>
-                <input type="password" name="password">
-                <span><?php echo $password_err; ?></span>
+            
+            <div class="input-group">
+                <label for="password">Password</label>
+                <i>&#128274;</i> <input type="password" id="password" name="password" placeholder="Enter your Password">
+                <span class="error-span"><?php echo $password_err; ?></span>
             </div>
-            <div style="margin-top: 15px;">
-                <input type="submit" value="Login">
+            
+            <div>
+                <input type="submit" value="LOG IN">
             </div>
         </form>
     </div>

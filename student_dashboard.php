@@ -73,14 +73,157 @@ try {
     <title>Student Dashboard</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .dashboard-wrapper { max-width: 900px; margin: 50px auto; padding: 20px; text-align: center; }
-        .summary-boxes { display: flex; justify-content: space-around; margin: 30px 0; }
-        .box { padding: 20px; border: 1px solid #ccc; border-radius: 8px; width: 30%; }
-        .box h4 { margin: 0 0 10px 0; color: #555; }
-        .box .value { font-size: 2em; font-weight: bold; }
-        .present { color: green; }
-        .absent { color: red; }
-        .alert-danger { color: #842029; background-color: #f8d7da; border: 1px solid #f5c2c7; padding: 10px; border-radius: 5px; margin-bottom: 20px; }
+        /* Base Styles: Professional and clean */
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f9fc; /* Soft, light background */
+            color: #333;
+        }
+        
+        /* Dashboard Wrapper (Container) */
+        .dashboard-wrapper { 
+            max-width: 1000px; 
+            margin: 50px auto; 
+            padding: 30px; 
+            text-align: center; 
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* Clean, visible shadow */
+        }
+        
+        /* Header and Titles */
+        .header-nav {
+            border-bottom: 2px solid #947d7dff; /* Subtle divider */
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        h1 { 
+            font-size: 26px;
+            color: #e90202ff; /* Primary institutional blue */
+            font-weight: 700;
+            margin: 0;
+            text-align: left;
+        }
+        h2 {
+            font-size: 20px;
+            color: #2c2929ff;
+            margin: 20px 0;
+            font-weight: 600;
+            text-align: left;
+        }
+        .logout-link {
+            text-decoration: none;
+            color: #df7b7bff;
+            font-weight: 600;
+            padding: 8px 15px;
+            border: 1px solid #f54b03ff;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        .logout-link:hover {
+            background-color: #c00f0fff;
+            color: white;
+        }
+
+
+        /* Summary Boxes (Card Styling) */
+        .summary-boxes { 
+            display: flex; 
+            justify-content: space-around; 
+            gap: 20px;
+            margin: 30px 0; 
+        }
+        .box { 
+            flex: 1;
+            padding: 25px 15px; 
+            border: 1px solid #e0e0e0;
+            border-radius: 8px; 
+            background-color: #f1f1f1ff; /* Light grey background */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s;
+        }
+        .box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
+        }
+        .box h4 { 
+            margin: 0 0 10px 0; 
+            color: #f68e8cff; 
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+        .box .value { 
+            font-size: 2.2em; 
+            font-weight: 800;
+        }
+
+        /* Status Colors - Applied to .value and table cells */
+        .present { 
+            color: #27ae60; /* Professional Green */
+            font-weight: 800;
+        } 
+        .absent { 
+            color: #df0d17ff; /* Professional Red */
+            font-weight: 800;
+        }
+        
+        /* Error Alert Styling */
+        .alert-danger { 
+            color: #c0392b; 
+            background-color: #f8e8e8; 
+            border: 1px solid #e74c3c; 
+            padding: 15px; 
+            border-radius: 5px; 
+            margin-bottom: 25px; 
+            font-weight: 500;
+            text-align: center;
+        }
+
+        /* Divider */
+        hr {
+            border: 0;
+            border-top: 1px solid #e0e0e0;
+            margin: 40px 0;
+        }
+
+        /* Detailed History Table */
+        table {
+            border: none !important; /* Override original border="1" */
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 20px;
+        }
+        table thead tr {
+            background-color: #eef2f7 !important; /* Light blue/grey header background */
+            border-bottom: 2px solid #d0d0d0;
+        }
+        table th {
+            padding: 12px 10px;
+            color: #ed7d32ff;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 13px;
+            text-align: left;
+        }
+        table td {
+            padding: 12px 10px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        table tbody tr:hover {
+            background-color: #fafafa;
+        }
+        /* Aligning the Status column content to the center */
+        table th:last-child, table td:last-child {
+             text-align: center;
+        }
+        .alert-info { 
+            padding: 15px;
+            border: 1px solid #a0a0ff;
+            background-color: #eef1ff;
+            border-radius: 5px;
+        }
+
     </style>
 </head>
 <body>
@@ -122,7 +265,7 @@ try {
         <?php else: ?>
             <table border="1" style="width:100%; border-collapse: collapse; margin-top: 20px;">
                 <thead>
-                    <tr style="background-color: #f2f2f2;">
+                    <tr style="background-color: #ccc8c8ff;">
                         <th style="padding: 10px;">Date</th>
                         <th style="padding: 10px;">Subject Code</th>
                         <th style="padding: 10px;">Subject Name</th>
