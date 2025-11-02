@@ -3,7 +3,7 @@ session_start();
 require_once 'config.php';
 
 // Check if the user is logged in and is a Teacher
-if (!isLoggedIn() || $_SESSION["user_role"] !== 'T') {
+if (!isLoggedIn() || $_SESSION["user_role"] !== 'A') {
     redirect('login.php');
 }
 
@@ -118,7 +118,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </form>
 
         <p style="margin-top: 15px;">
-            <a href="teacher_dashboard.php">← Back to Dashboard</a>
+            <a href="admin_dashboard.php">← Back to Dashboard</a>
         </p>
     </div>
 </body>
