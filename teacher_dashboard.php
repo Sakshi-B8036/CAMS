@@ -1,91 +1,81 @@
 <?php
-session_start();
-require_once 'config.php'; 
+require_once 'config.php';
+if (!isLoggedIn() || $_SESSION['user_role'] !== 'T') redirect('login.php');
 
-// Ensure the user is a logged-in teacher
-if (!isLoggedIn() || $_SESSION["user_role"] !== 'T') {
-    redirect('login.php');
-}
+$teacher_roll = $_SESSION['roll_no'];
+$name = $_SESSION['name'] ?? '';
 
-$teacher_roll = $_SESSION["roll_no"]; 
-$teacher_name = $_SESSION["name"]; 
-$subjects = []; 
-$error = "";
-
-try {
-    // 1️⃣ Get teacher_id using the teacher's roll number
-    $sql_teacher = "SELECT teacher_id FROM teachers WHERE roll_no = :roll_no";
-    $stmt_teacher = $pdo->prepare($sql_teacher);
-    $stmt_teacher->bindParam(':roll_no', $teacher_roll, PDO::PARAM_STR);
-    $stmt_teacher->execute();
-    $teacher_id = $stmt_teacher->fetchColumn();
-
-    if ($teacher_id) {
-        // 2️⃣ Fetch subjects assigned to this teacher
-        $sql_subjects = "SELECT subject_code, subject_name FROM subjects WHERE teacher_id = :teacher_id";
-        $stmt_subjects = $pdo->prepare($sql_subjects);
-        $stmt_subjects->bindParam(':teacher_id', $teacher_id, PDO::PARAM_INT);
-        $stmt_subjects->execute();
-        $subjects = $stmt_subjects->fetchAll(PDO::FETCH_ASSOC);
-    } else {
-        $error = "Teacher not found in the system. Please contact admin.";
-    }
-
-} catch (PDOException $e) {
-    $error = "Database Error: " . $e->getMessage();
-}
-?> 
-
-<!DOCTYPE html>
-<html lang="en">
+$subjects = $pdo->prepare("SELECT id,subject_code,subject_name,class,semester FROM subjects WHERE teacher_id = :t ORDER BY id ASC");
+$subjects->execute([':t'=>$teacher_roll]);
+$subjects = $subjects->fetchAll();
+?>
+<!doctype html>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teacher Dashboard</title>
-    <link rel="stylesheet" href="style.css">
-    <style> /* Basic styling for demonstration/readability */
-        .dashboard-wrapper { max-width: 800px; margin: 50px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; text-align: center; }
-        .alert-danger { color: red; margin-bottom: 15px; }
-        .btn { padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; }
-    </style>
+<meta charset="utf-8">
+<title>Teacher Dashboard</title>
+<style>
+body {
+    font-family: Segoe UI, sans-serif;
+    background: linear-gradient(90deg,#74617c,#3498db);
+    color: #fff;
+    padding: 20px;
+}
+.card {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #fff;
+    color: #333;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,.15);
+}
+.btn {
+    display: inline-block;
+    background: #1abc9c;
+    padding: 10px 16px;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    text-decoration: none;
+    margin: 8px 4px;
+}
+.btn:hover { background: #16a085; }
+select, input[type=date] {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #aaa;
+}
+</style>
 </head>
 <body>
-    <div class="dashboard-wrapper">
-        <div class="header-nav">
-            <h1>Welcome, <?php echo htmlspecialchars($teacher_name); ?> (<?php echo htmlspecialchars($teacher_roll); ?>)</h1>
-            <a href="logout.php" class="logout-link">Logout</a>
-        </div>
-        
-        <h2>Mark Attendance</h2>
 
-        <?php if (!empty($error)) : ?>
-            <div class="alert-danger"><?php echo $error; ?></div>
-        <?php endif; ?>
+<div class="card">
+    <h2>Welcome, <?php echo htmlspecialchars($name); ?></h2>
 
-        <?php if (empty($subjects)) : ?>
-            <div class="alert-danger">No subjects are available in the system.</div>
-        <?php else : ?>
-            <form action="mark_attendance.php" method="GET" class="subject-select-form">
-                <label for="subject_code">Select Subject:</label>
-                <select name="subject_code" id="subject_code" required>
-                    <option value="">-- Choose a Subject --</option>
-                    <?php foreach ($subjects as $subject) : ?>
-                        <option value="<?php echo htmlspecialchars($subject['subject_code']); ?>">
-                            <?php echo htmlspecialchars($subject['subject_name']); ?> (<?php echo htmlspecialchars($subject['subject_code']); ?>)
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <input type="date" name="session_date" value="<?php echo date('Y-m-d'); ?>" required>
-                <input type="submit" value="Load Class List" class="btn">
-            </form>
-        <?php endif; ?>
-            <hr>
-<div style="margin-top: 20px; text-align: center;">
-    <a href="view_attendance.php" 
-       class="btn"
-       style="text-decoration:none; padding:10px 20px; background-color:#28a745; color:white; border-radius:5px;">
-       📅 View Attendance Records
-    </a>
+    <h3>Mark Attendance</h3>
+    
+    <?php if (empty($subjects)) : ?>
+        <div style="background:#c0392b;padding:12px;border-radius:8px;color:#fff">No subjects assigned.</div>
+    <?php else: ?>
+        <form method="get" action="mark_attendance.php">
+            <select name="subject_id" required>
+                <option value="">-- Select Subject --</option>
+                <?php foreach ($subjects as $s): ?>
+                    <option value="<?php echo $s['id']; ?>">
+                        <?php echo htmlspecialchars($s['subject_name'].' ('.$s['subject_code'].' - '.$s['class'].')'); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <input type="date" name="session_date" value="<?php echo date('Y-m-d'); ?>" required>
+            <button type="submit" class="btn">Load Class List</button>
+        </form>
+    <?php endif; ?>
+
+    <br><br>
+    <a href="view_attendance.php" class="btn">📊 View Attendance History</a>
+    <a href="logout.php" class="btn" style="background:#e74c3c">Logout</a>
+</div>
 
 </body>
 </html>

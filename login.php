@@ -1,130 +1,136 @@
 <?php
-// Include the database connection file
-require_once "config.php";
-$role = $_GET['role'] ?? '';
-$role_name = $role === 'A' ? 'Admin' : ($role === 'T' ? 'Teacher' : 'Student');
+require_once 'config.php';
 
+$role_param = $_GET['role'] ?? '';
 
-// Initialize variables
-$roll_no = $password = "";
-$roll_no_err = $password_err = $login_err = "";
+$roll_no = $password = '';
+$err = '';
 
-// Processing form data when form is submitted
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $roll_no = trim($_POST['roll_no']);
+    $password = trim($_POST['password']);
 
-    // Check if roll_no is empty
-    if (empty(trim($_POST["roll_no"]))) {
-        $roll_no_err = "Please enter roll number.";
+    if ($roll_no === '' || $password === '') {
+        $err = "Please enter credentials.";
     } else {
-        $roll_no = trim($_POST["roll_no"]);
-    }
+        $sql = "SELECT id, roll_no, name, password, user_role FROM users WHERE roll_no = :roll LIMIT 1";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':roll' => $roll_no]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($user && $password === $user['password']) { // plain-text check
+            $_SESSION['loggedin'] = true;
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['roll_no'] = $user['roll_no'];
+            $_SESSION['name'] = $user['name'];
+            $_SESSION['user_role'] = $user['user_role'];
 
-    // Check if password is empty
-    if (empty(trim($_POST["password"]))) {
-        $password_err = "Please enter your password.";
-    } else {
-        $password = trim($_POST["password"]);
-    }
-
-    // Validate credentials
-    if (empty($roll_no_err) && empty($password_err)) {
-        $sql = "SELECT roll_no, password, user_role, name FROM users WHERE roll_no = :roll_no";
-
-        if ($stmt = $pdo->prepare($sql)) {
-            $stmt->bindParam(":roll_no", $roll_no, PDO::PARAM_STR);
-
-            if ($stmt->execute()) {
-                // Check if roll_no exists
-                if ($stmt->rowCount() == 1) {
-                    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-                    $db_password = $row["password"]; // This is the stored HASH
-                    $user_role = $row["user_role"];
-                    $name = $row["name"];
-
-                    // CRITICAL SECURITY FIX: Use password_verify() to compare the entered password with the hash
-                    if ($password === $db_password) {
-                        // Password is correct, start session
-                        $_SESSION["loggedin"] = true;
-                        $_SESSION["roll_no"] = $roll_no;
-                        $_SESSION["user_role"] = $user_role;
-                        $_SESSION["name"] = $name;
-
-                        // Redirect based on role
-                        if ($user_role === 'T') {
-                            header("location: teacher_dashboard.php");
-                        } elseif ($user_role === 'S') {
-                            header("location: student_dashboard.php");
-                        } else {
-                            header("location: admin_dashboard.php");
-                        }
-                        exit;
-                    } else {
-                        $login_err = "Invalid roll number or password.";
-                    }
-                } else {
-                    $login_err = "Invalid roll number or password.";
-                }
-            } else {
-                echo "Oops! Something went wrong. Please try again later.";
-            }
+            if ($user['user_role'] === 'A') redirect('admin_dashboard.php');
+            if ($user['user_role'] === 'T') redirect('teacher_dashboard.php');
+            if ($user['user_role'] === 'S') redirect('student_dashboard.php');
+        } else {
+            $err = "Invalid roll number or password.";
         }
     }
 }
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>CAMS Login</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        body { font: 14px sans-serif; background-color: #f9f9f9; }
-        .wrapper {
-            width: 350px; padding: 20px; margin: 80px auto;
-            border: 1px solid #ccc; border-radius: 10px; background: #fff;
-            box-shadow: 0px 0px 8px rgba(0,0,0,0.1);
+<!-- HTML form (same as earlier) -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Login</title>
+  <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #74617c, #3498db);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
-        .alert-danger {
-            color: #721c24; background-color: #f8d7da;
-            border-color: #f5c6cb; padding: 10px; border-radius: 5px;
+
+        .login-box {
+            width: 380px;
+            padding: 25px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .login-box h2 {
+            margin-bottom: 15px;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 10px;
+            margin: 12px 0;
+            border-radius: 5px;
+            border: none;
+            outline: none;
+            font-size: 15px;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background: #1abc9c;
+            color: white;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s ease-in-out;
+        }
+
+        .btn-login:hover {
+            background: #17a085;
+            transform: translateY(-2px);
+        }
+
+        .alert {
+            background: rgba(255, 0, 0, 0.15);
+            color: #ffbaba;
+            border: 1px solid rgba(255, 0, 0, 0.4);
+            padding: 8px;
             margin-bottom: 10px;
+            border-radius: 6px;
+            font-size: 14px;
         }
-        input[type="text"], input[type="password"] {
-            width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px;
+
+        .footer-link {
+            display: block;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #e3e3e3;
+            text-decoration: none;
         }
-        input[type="submit"] {
-            background: #007bff; color: white; border: none; padding: 8px 15px;
-            border-radius: 5px; cursor: pointer; width: 100%;
+
+        .footer-link:hover {
+            color: #ffffff;
+            text-decoration: underline;
         }
-        input[type="submit"]:hover { background: #0056b3; }
     </style>
 </head>
-<body>
-    <div class="wrapper">
-        <h2 style="text-align:center;">CAMS <?php echo htmlspecialchars($role_name); ?> Login</h2>
-        <p>Please fill in your credentials to login.</p>
+    <div class="login-box">
+        <h2>Login to CAMS</h2>
 
-        <?php
-        if (!empty($login_err)) {
-            echo '<div class="alert-danger">' . $login_err . '</div>';
-        }
-        ?>
+        <?php if (!empty($login_err)) : ?>
+            <div class="alert"><?php echo $login_err; ?></div>
+        <?php endif; ?>
 
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-            <div>
-                <label>Roll Number</label>
-                <input type="text" name="roll_no" value="<?php echo htmlspecialchars($roll_no); ?>">
-                <span><?php echo $roll_no_err; ?></span>
-            </div>
-            <div>
-                <label>Password</label>
-                <input type="password" name="password">
-                <span><?php echo $password_err; ?></span>
-            </div>
-            <div style="margin-top: 15px;">
-                <input type="submit" value="Login">
-            </div>
+        <form method="POST">
+            <input type="text" name="roll_no" placeholder="Enter Roll Number" class="input-field" required>
+            <input type="password" name="password" placeholder="Enter Password" class="input-field" required>
+            <button type="submit" class="btn-login">Login</button>
         </form>
+
+        <a href="index.php" class="footer-link">← Back to Home</a>
     </div>
+
 </body>
 </html>

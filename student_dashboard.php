@@ -1,67 +1,40 @@
 <?php
-session_start();
 require_once 'config.php';
 
-// Ensure the user is logged in and is a Student ('S')
-if (!isLoggedIn() || $_SESSION["user_role"] !== 'S') {
+if (!isLoggedIn() || $_SESSION['user_role'] !== 'S') {
     redirect('login.php');
 }
 
-$student_roll = $_SESSION["roll_no"];
-$student_name = $_SESSION["name"];
-$error = "";
+$student_roll = $_SESSION['roll_no'];
+$student_name = $_SESSION['name'] ?? '';
 
-// Initialize data arrays to avoid 'Undefined variable' warnings
-$total_sessions = 0;
-$sessions_present = 0;
-$attendance_percentage = "0.0";
-$history_data = [];
-
+/* -------- FETCH ATTENDANCE SUMMARY -------- */
 try {
-    // 1. CRITICAL: Get the student_id from the students table using the roll_no
-    $sql_get_id = "SELECT student_id FROM students WHERE roll_no = :roll";
-    $stmt_get_id = $pdo->prepare($sql_get_id);
-    $stmt_get_id->bindParam(':roll', $student_roll);
-    $stmt_get_id->execute();
-    $student_id = $stmt_get_id->fetchColumn();
+    // Total sessions student has records for
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM attendance WHERE student_roll = :sr");
+    $stmt->execute([':sr' => $student_roll]);
+    $total_sessions = (int)$stmt->fetchColumn();
 
-    if ($student_id) {
-        // 2. QUERY FOR SUMMARY - Filter by the found student_id
-        $sql_summary = "SELECT 
-                            COUNT(status) AS total_sessions,
-                            SUM(CASE WHEN status = 'P' THEN 1 ELSE 0 END) AS sessions_present
-                        FROM attendance
-                        WHERE student_id = :s_id"; 
-        $stmt_summary = $pdo->prepare($sql_summary);
-        $stmt_summary->bindParam(':s_id', $student_id);
-        $stmt_summary->execute();
-        $summary_data = $stmt_summary->fetch(PDO::FETCH_ASSOC);
+    // Total present sessions
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM attendance WHERE student_roll = :sr AND status = 'P'");
+    $stmt->execute([':sr' => $student_roll]);
+    $present_sessions = (int)$stmt->fetchColumn();
 
-        $total_sessions = $summary_data['total_sessions'] ?? 0;
-        $sessions_present = $summary_data['sessions_present'] ?? 0;
-        
-        $attendance_percentage = ($total_sessions > 0) 
-            ? number_format(($sessions_present / $total_sessions) * 100, 1) 
-            : "0.0";
-        
-        // 3. QUERY FOR DETAILED HISTORY - Filter by the found student_id
-        $sql_history = "SELECT a.session_date, a.status, s.subject_name, s.subject_code 
-                        FROM attendance a
-                        JOIN subjects s ON a.subject_code = s.subject_code
-                        WHERE a.student_id = :s_id
-                        ORDER BY a.session_date DESC";
-        $stmt_history = $pdo->prepare($sql_history);
-        $stmt_history->bindParam(':s_id', $student_id);
-        $stmt_history->execute();
-        $history_data = $stmt_history->fetchAll(PDO::FETCH_ASSOC);
+    $attendance_percentage = $total_sessions > 0 ? round(($present_sessions / $total_sessions) * 100, 2) : 0;
 
-    } else {
-        $error = "Error: Student roll number **{$student_roll}** is not linked in the `students` table. Contact admin.";
-    }
+    // Fetch detailed attendance
+    $stmt = $pdo->prepare("
+        SELECT a.session_date, a.status, s.subject_code, s.subject_name
+        FROM attendance a
+        JOIN subjects s ON a.subject_id = s.id
+        WHERE a.student_roll = :sr
+        ORDER BY a.session_date DESC
+    ");
+    $stmt->execute([':sr' => $student_roll]);
+    $attendance_records = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
-    // Log error, but provide a friendly message to the user
-    $error = "Database Error: Could not load attendance data. SQLSTATE[{$e->getCode()}]: " . $e->getMessage();
+    die("Database Error: " . $e->getMessage());
 }
 ?>
 
@@ -69,80 +42,136 @@ try {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard</title>
-    <link rel="stylesheet" href="style.css">
     <style>
-        .dashboard-wrapper { max-width: 900px; margin: 50px auto; padding: 20px; text-align: center; }
-        .summary-boxes { display: flex; justify-content: space-around; margin: 30px 0; }
-        .box { padding: 20px; border: 1px solid #ccc; border-radius: 8px; width: 30%; }
-        .box h4 { margin: 0 0 10px 0; color: #555; }
-        .box .value { font-size: 2em; font-weight: bold; }
-        .present { color: green; }
-        .absent { color: red; }
-        .alert-danger { color: #842029; background-color: #f8d7da; border: 1px solid #f5c2c7; padding: 10px; border-radius: 5px; margin-bottom: 20px; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f2f4f8;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            background: #3498db;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+        }
+        .summary-boxes {
+            display: flex;
+            justify-content: space-between;
+            margin: 25px 0;
+        }
+        .box {
+            flex: 1;
+            margin: 0 10px;
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 18px;
+            text-align: center;
+            border-radius: 8px;
+        }
+        .box h3 {
+            color: #444;
+        }
+        .box p {
+            font-size: 28px;
+            margin: 8px 0 0 0;
+            font-weight: bold;
+        }
+        .red { color: #e74c3c; }
+        .green { color: #2ecc71; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 18px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background: #3498db;
+            color: white;
+        }
+        tr:nth-child(even) { background: #f9f9f9; }
+        .logout-btn {
+            float: right;
+            padding: 8px 14px;
+            border: 1px solid #c0392b;
+            color: #c0392b;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .logout-btn:hover {
+            background: #c0392b;
+            color: white;
+        }
     </style>
 </head>
 <body>
-    <div class="dashboard-wrapper">
-        <div class="header-nav" style="display: flex; justify-content: space-between; align-items: center;">
-            <h1>Welcome, <?php echo htmlspecialchars($student_name); ?> (<?php echo htmlspecialchars($student_roll); ?>)</h1>
-            <a href="logout.php" class="logout-link">Logout</a>
+
+<div class="container">
+    <a href="logout.php" class="logout-btn">Logout</a>
+    <h2>Welcome, <?php echo htmlspecialchars($student_name . " (" . $student_roll . ")"); ?></h2>
+
+    <h3 style="text-align:center; margin-top:20px;">Attendance Summary</h3>
+
+    <div class="summary-boxes">
+        <div class="box">
+            <h3>Total Sessions Marked</h3>
+            <p><?php echo $total_sessions; ?></p>
         </div>
-        
-        <?php if (!empty($error)): ?>
-            <div class="alert-danger"><?php echo $error; ?></div>
-        <?php endif; ?>
-
-        <h2>Attendance Summary</h2>
-
-        <div class="summary-boxes">
-            <div class="box">
-                <h4>Total Sessions Marked</h4>
-                <div class="value"><?php echo $total_sessions; ?></div>
-            </div>
-            <div class="box">
-                <h4>Sessions Present</h4>
-                <div class="value present"><?php echo $sessions_present; ?></div>
-            </div>
-            <div class="box">
-                <h4>Attendance Percentage</h4>
-                <div class="value <?php echo ($attendance_percentage < 75 && $total_sessions > 0) ? 'absent' : 'present'; ?>">
-                    <?php echo $attendance_percentage; ?>%
-                </div>
-            </div>
+        <div class="box">
+            <h3>Sessions Present</h3>
+            <p><?php echo $present_sessions; ?></p>
         </div>
-
-        <hr style="margin: 40px 0;">
-        
-        <h2>Detailed Attendance History</h2>
-
-        <?php if (empty($history_data)): ?>
-            <div class="alert-info" style="color: blue;">No attendance records found yet.</div>
-        <?php else: ?>
-            <table border="1" style="width:100%; border-collapse: collapse; margin-top: 20px;">
-                <thead>
-                    <tr style="background-color: #f2f2f2;">
-                        <th style="padding: 10px;">Date</th>
-                        <th style="padding: 10px;">Subject Code</th>
-                        <th style="padding: 10px;">Subject Name</th>
-                        <th style="padding: 10px;">Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($history_data as $record): ?>
-                    <tr>
-                        <td style="padding: 10px;"><?php echo date('M j, Y', strtotime($record['session_date'])); ?></td>
-                        <td style="padding: 10px;"><?php echo htmlspecialchars($record['subject_code']); ?></td>
-                        <td style="padding: 10px;"><?php echo htmlspecialchars($record['subject_name']); ?></td>
-                        <td style="padding: 10px;" class="<?php echo ($record['status'] === 'P') ? 'present' : 'absent'; ?>">
-                            <?php echo ($record['status'] === 'P') ? 'Present' : 'Absent'; ?>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
+        <div class="box">
+            <h3>Attendance Percentage</h3>
+            <p class="<?php echo ($attendance_percentage < 75) ? 'red' : 'green'; ?>">
+                <?php echo $attendance_percentage; ?>%
+            </p>
+        </div>
     </div>
+
+    <h3 style="text-align:center;">Detailed Attendance History</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Subject Code</th>
+                <th>Subject Name</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+        <?php if (empty($attendance_records)) : ?>
+            <tr><td colspan="4">No attendance records found.</td></tr>
+        <?php else: ?>
+            <?php foreach ($attendance_records as $row): ?>
+            <tr>
+                <td><?php echo htmlspecialchars($row['session_date']); ?></td>
+                <td><?php echo htmlspecialchars($row['subject_code']); ?></td>
+                <td><?php echo htmlspecialchars($row['subject_name']); ?></td>
+                <td><?php echo $row['status'] === 'P' ? '✅ Present' : '❌ Absent'; ?></td>
+            </tr>
+            <?php endforeach; ?>
+        <?php endif; ?>
+        </tbody>
+    </table>
+
+</div>
+
 </body>
 </html>

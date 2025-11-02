@@ -1,67 +1,32 @@
 <?php
-session_start();
 require_once 'config.php';
+if (!isLoggedIn() || $_SESSION['user_role'] !== 'A') redirect('login.php');
 
-// Check if the user is logged in and is a Teacher
-if (!isLoggedIn() || $_SESSION["user_role"] !== 'A') {
-    redirect('login.php');
-}
+$error = $success = '';
 
-$error = "";
-$success = "";
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $roll = trim($_POST['roll_no']);
+    $name = trim($_POST['student_name']);
+    $class = trim($_POST['class']);
+    $semester = trim($_POST['semester']);
+    $password = trim($_POST['password']);
 
-// ----------------------------------------
-// Handle Form Submission
-// ----------------------------------------
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Sanitize input
-    $roll_no  = filter_input(INPUT_POST, 'roll_no', FILTER_SANITIZE_STRING);
-    $name     = filter_input(INPUT_POST, 'student_name', FILTER_SANITIZE_STRING);
-    $class    = filter_input(INPUT_POST, 'class', FILTER_SANITIZE_STRING);
-    $stream   = filter_input(INPUT_POST, 'stream', FILTER_SANITIZE_STRING);
-    $semester = filter_input(INPUT_POST, 'semester', FILTER_SANITIZE_STRING);
-    $password = $_POST['password'];
-
-    if (empty($roll_no) || empty($name) || empty($class) || empty($stream) || empty($semester) || empty($password)) {
-        $error = "⚠️ All fields are required.";
+    if ($roll===''||$name===''||$class===''||$semester===''||$password==='') {
+        $error = 'All fields required.';
     } else {
-        // NOTE: For production use password_hash()
-        $insert_password = $password;
-
         try {
-            // Start a transaction
             $pdo->beginTransaction();
+            $stmt = $pdo->prepare("INSERT INTO users (roll_no,name,password,user_role) VALUES (:roll,:name,:pwd,'S')");
+            $stmt->execute([':roll'=>$roll, ':name'=>$name, ':pwd'=>$password]);
 
-            // 1️⃣ Insert into USERS table
-            $sql_user = "INSERT INTO users (roll_no, name, password, user_role)
-                         VALUES (:roll, :name, :password, 'S')";
-            $stmt_user = $pdo->prepare($sql_user);
-            $stmt_user->execute([
-                ':roll' => $roll_no,
-                ':name' => $name,
-                ':password' => $insert_password
-            ]);
-
-            // 2️⃣ Insert into STUDENTS table
-            $sql_student = "INSERT INTO students (roll_no, class, stream, semester)
-                            VALUES (:roll, :class, :stream, :semester)";
-            $stmt_student = $pdo->prepare($sql_student);
-            $stmt_student->execute([
-                ':roll' => $roll_no,
-                ':class' => $class,
-                ':stream' => $stream,
-                ':semester' => $semester
-            ]);
+            $stmt2 = $pdo->prepare("INSERT INTO students (roll_no, class, semester) VALUES (:roll,:class,:sem)");
+            $stmt2->execute([':roll'=>$roll, ':class'=>$class, ':sem'=>$semester]);
 
             $pdo->commit();
-            $success = "✅ Student <b>$roll_no ($name)</b> added successfully.";
+            $success = "Student added.";
         } catch (PDOException $e) {
             $pdo->rollBack();
-            if ($e->getCode() === '23000') {
-                $error = "⚠️ Roll Number <b>$roll_no</b> already exists.";
-            } else {
-                $error = "❌ Database error: " . $e->getMessage();
-            }
+            $error = "DB error: " . $e->getMessage();
         }
     }
 }

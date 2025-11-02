@@ -1,44 +1,31 @@
 <?php
-require_once "config.php";
+require_once 'config.php';
+if (!isLoggedIn() || $_SESSION['user_role'] !== 'A') redirect('login.php');
 
-if (!isLoggedIn() || $_SESSION["user_role"] !== 'A') {
-    redirect('login.php');
-}
+$error = $success = '';
 
-$error = "";
-$success = "";
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $roll = trim($_POST['roll_no']);
+    $name = trim($_POST['name']);
+    $password = trim($_POST['password']);
+    $department = trim($_POST['department']);
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-
-    $roll_no = trim($_POST["roll_no"]);
-    $name = trim($_POST["name"]);
-    $password = trim($_POST["password"]);
-
-    if (empty($roll_no) || empty($name) || empty($password)) {
-        $error = "⚠️ All fields are required.";
+    if ($roll === '' || $name === '' || $password === '') {
+        $error = 'All fields required.';
     } else {
         try {
             $pdo->beginTransaction();
+            $stmt = $pdo->prepare("INSERT INTO users (roll_no, name, password, user_role) VALUES (:roll, :name, :pwd, 'T')");
+            $stmt->execute([':roll'=>$roll, ':name'=>$name, ':pwd'=>$password]);
 
-            $sql_user = "INSERT INTO users (roll_no, name, password, user_role)
-                         VALUES (:roll, :name, :password, 'T')";
-            $stmt = $pdo->prepare($sql_user);
-            $stmt->execute([
-                ':roll' => $roll_no,
-                ':name' => $name,
-                ':password' => $password
-            ]);
+            $stmt2 = $pdo->prepare("INSERT INTO teachers (roll_no, department) VALUES (:roll, :dept)");
+            $stmt2->execute([':roll'=>$roll, ':dept'=>$department]);
 
             $pdo->commit();
-            $success = "✅ Teacher $name ($roll_no) added successfully.";
-
+            $success = "Teacher added.";
         } catch (PDOException $e) {
             $pdo->rollBack();
-            if ($e->getCode() === '23000') {
-                $error = "⚠️ Roll Number already exists.";
-            } else {
-                $error = "Database Error: " . $e->getMessage();
-            }
+            $error = "DB error: ".$e->getMessage();
         }
     }
 }
@@ -75,6 +62,13 @@ button {
     font-size: 16px;
     cursor: pointer;
 }
+.from{
+    margin:80px;
+}
+.back{
+    margin-left:200px;
+    margin-right:200px;
+}
 button:hover { background: #148f77; }
 .alert { padding: 10px; border-radius: 5px; margin-bottom: 10px; text-align: center; }
 .alert-danger { background: #e74c3c; }
@@ -83,21 +77,15 @@ a { color: #fff; text-decoration: none; display: block; text-align: center; marg
 </style>
 </head>
 <body>
-
-<div class="container">
-    <h2>Add New Teacher</h2>
-
-    <?php if ($error): ?><div class="alert alert-danger"><?php echo $error; ?></div><?php endif; ?>
-    <?php if ($success): ?><div class="alert alert-success"><?php echo $success; ?></div><?php endif; ?>
-
-    <form method="POST">
-        <input type="text" name="roll_no" placeholder="Teacher ID (Ex. T101)" required>
-        <input type="text" name="name" placeholder="Teacher Name" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <button type="submit">Add Teacher</button>
-        <a href="admin_dashboard.php">⬅ Back to Dashboard</a>
-    </form>
-</div>
-
+<h2>Add Teacher</h2>
+<?php if ($error) echo "<div style='color:red;'>$error</div>"; if ($success) echo "<div style='color:green;'>$success</div>"; ?>
+<form method="post" class="from">
+<input name="roll_no" placeholder="T101" required>
+<input name="name" placeholder="Teacher Name" required>
+<input name="password" placeholder="password" required>
+<input name="department" placeholder="Department">
+<button type="submit">Add</button>
+</form>
+<a href="admin_dashboard.php" class="back">Back</a>
 </body>
 </html>
