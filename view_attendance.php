@@ -35,13 +35,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if (!empty($subject_code) && !empty($session_date)) {
         try {
-            $sql = "SELECT u.roll_no, u.name, a.status, a.session_date, a.marked_at, s.class, s.stream
+            // 🛑 FIX: The column 'a.marked_at' is REMOVED/CORRECTED.
+            // Since the date is provided in the WHERE clause, fetching 'session_date' is redundant,
+            // but we'll fetch the date/time the record was CREATED if such a column exists
+            // (assuming 'marked_at' was intended to be a TIMESTAMP).
+            // However, based on your structure, 'session_date' is the closest date field.
+            
+            // To be safe, let's remove a.marked_at entirely, as 'session_date' is already selected via the form.
+            // If you have a separate TIMESTAMP column (e.g., 'created_at'), you should use that instead.
+            
+            $sql = "SELECT u.roll_no, u.name, a.status, s.class, s.stream
                     FROM attendance a
                     JOIN students s ON a.student_id = s.student_id
                     JOIN users u ON s.roll_no = u.roll_no
                     WHERE a.subject_code = :subject_code
                     AND a.session_date = :session_date
                     ORDER BY u.roll_no";
+            
             $stmt = $pdo->prepare($sql);
             $stmt->execute([
                 ':subject_code' => $subject_code,
@@ -92,7 +102,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <div class="alert-danger"><?php echo $error; ?></div>
     <?php endif; ?>
 
-    <!-- Step 1: Form to select date and subject -->
     <form method="POST" action="" style="text-align:center;">
         <label for="subject_code"><b>Select Subject:</b></label>
         <select name="subject_code" required>
@@ -111,7 +120,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <button type="submit" class="btn">View Attendance</button>
     </form>
 
-    <!-- Step 2: Show attendance list -->
     <?php if (!empty($attendance_records)): ?>
         <h3 style="margin-top: 30px; text-align:center;">Attendance for <?php echo htmlspecialchars($_POST['session_date']); ?></h3>
         <table>
@@ -122,8 +130,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <th>Class</th>
                     <th>Stream</th>
                     <th>Status</th>
-                    <th>Marked At</th>
-                </tr>
+                    <th>Session Date</th> </tr>
             </thead>
             <tbody>
                 <?php foreach ($attendance_records as $row): ?>
@@ -135,8 +142,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <td class="<?php echo $row['status'] === 'P' ? 'status-present' : 'status-absent'; ?>">
                             <?php echo $row['status'] === 'P' ? 'Present ✅' : 'Absent ❌'; ?>
                         </td>
-                        <td><?php echo htmlspecialchars($row['marked_at']); ?></td>
-                    </tr>
+                        <td><?php echo htmlspecialchars($_POST['session_date']); ?></td> </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
