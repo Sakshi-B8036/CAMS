@@ -186,7 +186,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <nav>
       <ul class="nav-links">
         <li><a href="index.php">Home</a></li>
-        <li><a href="about.php">About</a></li>
+        <li><a href="about.html">About</a></li>
         <li><a href="team.php">Our Team</a></li>
         <li><a href="contact.php" class="active">Contact</a></li>
       </ul>

@@ -23,183 +23,166 @@ if (isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true) {
   <meta charset="UTF-8">
   <title>Welcome to CAMS</title>
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(to right, #74617c, #3498db);
-      color: #333;
-    }
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(to top right, #83c4f5ff 0%, #ffffffff 100%);
+  color: #333;
+}
 
-    header {
-      background: rgba(0, 0, 0, 0.3);
-      color: white;
-      padding: 1rem 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-    }
+/* HEADER */
+header {
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 
-    header h1 {
-      margin: 0;
-      font-size: 1.8rem;
-      color: #4d8bc8;
-    }
+header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  color: #007bff;
+  font-weight: 700;
+}
 
-    nav ul.nav-links {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
+nav ul.nav-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 1rem;
+}
 
-    nav ul.nav-links li a {
-      color: white;
-      text-decoration: none;
-      font-weight: 600;
-      padding: 0.4rem 0.8rem;
-      border-radius: 4px;
-      transition: background-color 0.3s ease;
-    }
+nav ul.nav-links li a {
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.4rem 0.8rem;
+  color: #007bff;
+  border-radius: 6px;
+  transition: 0.3s;
+}
 
-    nav ul.nav-links li a:hover,
-    nav ul.nav-links li a.active {
-      background-color: #1abc9c;
-      color: white;
-    }
+nav ul.nav-links li a:hover,
+nav ul.nav-links li a.active {
+  background-color: #007bff;
+  color: white;
+}
 
-    .container {
-      max-width: 900px;
-      margin: 2rem auto;
-      padding: 0 1rem;
-    }
+/* CONTAINER */
+.container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
 
-    .hero {
-      text-align: center;
-      margin-top: 2rem;
-      animation: fadeIn 1.5s ease-in;
-    }
+/* HERO TEXT */
+.hero h2 {
+  font-size: 2rem;
+  margin-bottom: 0.8rem;
+  color: #1a1a1a;
+}
 
-    .hero h2 {
-      font-size: 2rem;
-      margin-bottom: 0.8rem;
-      color: #fff;
-    }
+.hero p {
+  font-size: 1.1rem;
+  color: #444;
+  margin-bottom: 1.5rem;
+}
 
-    .hero p {
-      font-size: 1.1rem;
-      color: #f1f1f1;
-      margin-bottom: 1.5rem;
-      animation: slideUp 2s ease;
-    }
+/* FEATURE CARDS - GLASSMORPHIC */
+.features {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
 
-    /* Interactive Feature Cards */
-    .features {
-      display: flex;
-      justify-content: space-between;
-      gap: 1rem;
-      margin-top: 2rem;
-      flex-wrap: wrap;
-    }
+.feature-card {
+  flex: 1 1 30%;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(14px);
+  padding: 1.5rem;
+  border-radius: 14px;
+  text-align: center;
+  box-shadow: 0 12px 40px rgba(0, 50, 100, 0.18);
+  transition: all 0.35s ease;
+  color: #1a1a1a;
+}
 
-    .feature-card {
-      flex: 1 1 30%;
-      background: rgba(0, 0, 0, 0.3);
-      padding: 1.5rem;
-      border-radius: 10px;
-      color: #fff;
-      text-align: center;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-      transition: all 0.3s ease;
-      transform: translateY(0);
-    }
+.feature-card:hover {
+  background:rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(18px);
+  transform: translateY(-8px);
+  box-shadow: 0 16px 50px rgba(0, 50, 100, 0.25);
+}
 
-    .feature-card:hover {
-      transform: translateY(-8px);
-      background: #1abc9c;
-      color: white;
-    }
+.feature-card h3 {
+  color: #007bff;
+  margin-bottom: 0.8rem;
+}
 
-    .feature-card h3 {
-      color: #4d8bc8;
-      margin-bottom: 0.8rem;
-    }
+/* LOGIN BUTTONS */
+.login-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2.5rem;
+  flex-wrap: wrap;
+}
 
-    .feature-card p {
-      color: #e6e6e6;
-      font-size: 0.95rem;
-      line-height: 1.5;
-    }
+.login-btn {
+  background: #007bff;
+  color: white;
+  text-decoration: none;
+  font-weight: 700;
+  padding: 0.9rem 1.6rem;
+  border-radius: 10px;
+  transition: 0.25s ease-in-out;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
 
-    /* Login Buttons */
-    .login-buttons {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      margin-top: 2.5rem;
-      flex-wrap: wrap;
-    }
+.login-btn:hover {
+  background: #0056b3;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 18px rgba(0, 123, 255, 0.42);
+}
 
-    .login-btn {
-      background: rgba(0, 0, 0, 0.3);
-      color: white;
-      text-decoration: none;
-      font-weight: bold;
-      padding: 0.8rem 1.5rem;
-      border-radius: 8px;
-      transition: all 0.3s ease;
-    }
+/* FOOTER */
+footer {
+  text-align: center;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.45);
+  margin-top: 3rem;
+  font-weight: 600;
+  color: #007bff;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
 
-    .login-btn:hover {
-      background: #1abc9c;
-      color: white;
-      transform: scale(1.05);
-    }
+/* RESPONSIVE */
+@media (max-width: 700px) {
+  nav ul.nav-links {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .features {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .login-buttons {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+}
 
-    footer {
-      text-align: center;
-      padding: 1rem;
-      background: rgba(0, 0, 0, 0.3);
-      color: white;
-      margin-top: 3rem;
-    }
 
-    footer p:hover {
-      cursor: pointer;
-      color: #4d8bc8;
-    }
-
-    @media (max-width: 700px) {
-      nav ul.nav-links {
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-      header {
-        flex-direction: column;
-        gap: 1rem;
-      }
-      .features {
-        flex-direction: column;
-        gap: 1rem;
-      }
-      .login-buttons {
-        flex-direction: column;
-        gap: 0.8rem;
-      }
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
   </style>
 </head>
 <body>
