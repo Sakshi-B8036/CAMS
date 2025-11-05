@@ -43,12 +43,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
       padding: 0;
-      background: linear-gradient(to right, #74617c, #3498db);
+        background: linear-gradient(to top right, #05528dff 0%, #cbccd6ff 100%);
       color: #fff;
     }
 
     header {
-      background: rgba(0, 0, 0, 0.3);
+       background: rgba(255, 255, 255, 0.4);
       color: white;
       padding: 1rem 2rem;
       display: flex;
@@ -60,7 +60,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     header h1 {
       margin: 0;
       font-size: 1.8rem;
-      color: #4d8bc8;
+      color: #007bff;
     }
 
     nav ul.nav-links {
@@ -83,14 +83,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     nav ul.nav-links li a:hover,
     nav ul.nav-links li a.active {
-      background-color: #1abc9c;
+      background-color: #007bff;
       color: white;
     }
 
     .container {
       max-width: 700px;
       margin: 2rem auto;
-      background: rgba(0, 0, 0, 0.3);
+      background: linear-gradient(to top right, #05528dff 0%, #cbccd6ff 100%);
       padding: 2rem;
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
@@ -98,7 +98,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     h2 {
       text-align: center;
-      color: #fff;
+      color: #007bff;
     }
 
     form {
@@ -117,7 +117,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     input:focus, textarea:focus {
-      outline: 2px solid #1abc9c;
+      outline: 2px solid #007bff;
       background-color: #f9f9f9;
       color: #000;
     }

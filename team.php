@@ -8,7 +8,7 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
       padding: 0;
-      background: linear-gradient(to right, #74617c, #3498db);
+        background: linear-gradient(to top right, #05528dff 0%, #cbccd6ff 100%);
       color: #333;
     }
 
@@ -48,7 +48,7 @@
 
     nav ul.nav-links li a:hover,
     nav ul.nav-links li a.active {
-      background-color: #1abc9c;
+      background-color: #007bff;
       color: white;
     }
 
@@ -75,7 +75,7 @@
     }
 
     .member-card {
-      background: rgba(0, 0, 0, 0.3);
+      background: rgba(215, 214, 214, 0.45);
       border-radius: 10px;
       padding: 1.5rem;
       width: 280px;
@@ -85,13 +85,13 @@
     }
 
     .member-card:hover {
-      background: #1abc9c;
+      background:rgba(255, 255, 255, 0.45);
       transform: translateY(-8px);
     }
 
     .member-card h3 {
       margin: 0.5rem 0;
-      color: #4d8bc8;
+      color: #007bff;
     }
 
     .member-card p {
