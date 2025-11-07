@@ -10,9 +10,9 @@ if (!isLoggedIn() || $_SESSION["user_role"] !== 'A') {
 $error = $success = "";
 $teachers = []; // Initialize array for subject assignment dropdown
 
-// --------------------
-// 1️⃣ Handle Add User (Teacher or Student)
-// --------------------
+
+//  Add User (Teacher or Student)
+
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["add_user"])) {
     $role = $_POST["role"];
     $roll_no = trim($_POST["roll_no"]);
@@ -80,10 +80,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["add_user"])) {
         }
     }
 }
-
-// --------------------
-// 2️⃣ Handle Add Subject
-// --------------------
+// Add Subject
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["add_subject"])) {
     $code = filter_input(INPUT_POST, 'subject_code', FILTER_SANITIZE_STRING);
     $name = filter_input(INPUT_POST, 'subject_name', FILTER_SANITIZE_STRING);
@@ -119,9 +116,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["add_subject"])) {
     }
 }
 
-// --------------------
-// 3️⃣ Fetch Data for Forms/Summary
-// --------------------
+// Fetch Data for Forms/Summary
 try {
     // Fetch all teachers for the dropdown list in the Add Subject form
     $sql_teachers = "SELECT t.teacher_id, u.name 
@@ -352,7 +347,7 @@ try {
 <body>
     <div class="container">
         <div class="header">
-            <h1>👑 CAMS Admin Dashboard</h1>
+            <h1>CAMS Admin Dashboard</h1>
             <a href="logout.php" class="logout-link">Logout</a>
         </div>
 

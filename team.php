@@ -13,7 +13,7 @@
     }
 
     header {
-      background: rgba(0, 0, 0, 0.3);
+       background: rgba(255, 255, 255, 0.4);
       color: white;
       padding: 1rem 2rem;
       display: flex;
