@@ -22,169 +22,239 @@ if (isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true) {
 <head>
   <meta charset="UTF-8">
   <title>Welcome to CAMS</title>
-  <style>
+<style>
+/* ---------------------------------- */
+/* GLOBAL RESET & BACKGROUND */
+/* ---------------------------------- */
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  margin: 0;
-  padding: 0;
-  background: linear-gradient(to top right, #05528dff 0%, #cbccd6ff 100%);
-  color: #333;
-}
-
-/* HEADER */
-header {
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  padding: 1rem 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-header h1 {
-  margin: 0;
-  font-size: 1.8rem;
-  color: #007bff;
-  font-weight: 700;
-}
-
-nav ul.nav-links {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  gap: 1rem;
-}
-
-nav ul.nav-links li a {
-  text-decoration: none;
-  font-weight: 600;
-  padding: 0.4rem 0.8rem;
-  color: #007bff;
-  border-radius: 6px;
-  transition: 0.3s;
-}
-
-nav ul.nav-links li a:hover,
-nav ul.nav-links li a.active {
-  background-color: #007bff;
-  color: white;
+    /* Deep Indigo/Charcoal background for authority and contrast */
+    font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    /* Deep, professional dark blue/purple gradient */
+    background: linear-gradient(145deg, #181133 0%, #2f255c 100%); 
+    color: #ffffff; 
+    min-height: 100vh;
+    overflow-x: hidden;
 }
 
 /* CONTAINER */
 .container {
-  max-width: 900px;
-  margin: 2rem auto;
-  padding: 0 1rem;
+    max-width: 1200px; 
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+/* ---------------------------------- */
+/* HEADER & NAVIGATION (Structured) */
+/* ---------------------------------- */
+header {
+    background: #181133; /* Solid, dark background for stability */
+    border-bottom: 3px solid #8a2be2; /* Vivid Violet/Purple Accent border */
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.8rem; 
+    color: #8a2be2; /* Main Violet Accent Color */
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* NAVIGATION LINKS */
+nav ul.nav-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 2rem;
+}
+
+nav ul.nav-links li a {
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    color: #c5c1e0; /* Light lavender/gray for readability */
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+nav ul.nav-links li a:hover,
+nav ul.nav-links li a.active {
+    background: #8a2be2; 
+    color: #fff;
+    border: 1px solid #8a2be2;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(138, 43, 226, 0.4);
+}
+
+/* ---------------------------------- */
+/* MAIN CONTENT & HERO (Authoritative) */
+/* ---------------------------------- */
+main.container {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
 }
 
 /* HERO TEXT */
 .hero h2 {
-  font-size: 2rem;
-  margin-bottom: 0.8rem;
-  color: #1a1a1a;
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    color: #ffffff;
+    text-align: center;
+    font-weight: 900;
+    line-height: 1.2;
+}
+/* Highlight the key phrase in the heading */
+.hero h2 strong {
+    color: #8a2be2;
 }
 
 .hero p {
-  font-size: 1.1rem;
-  color: #444;
-  margin-bottom: 1.5rem;
+    font-size: 1.2rem;
+    color: #a0a0ff; /* Light purple for body text */
+    text-align: center;
+    max-width: 900px;
+    margin: 0 auto 5rem auto;
+    font-weight: 300;
 }
 
-/* FEATURE CARDS - GLASSMORPHIC */
+/* ---------------------------------- */
+/* FEATURE CARDS (Clean and Purposeful) */
+/* ---------------------------------- */
 .features {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-top: 2rem;
-  flex-wrap: wrap;
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
 }
 
 .feature-card {
-  flex: 1 1 30%;
-  background: rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(14px);
-  padding: 1.5rem;
-  border-radius: 14px;
-  text-align: center;
-  box-shadow: 0 12px 40px rgba(0, 50, 100, 0.18);
-  transition: all 0.35s ease;
-  color: #1a1a1a;
+    flex: 1 1 300px;
+    background: #2f255c; /* Card background is slightly lighter than body */
+    border: 1px solid #4a3b83; /* Dark purple border */
+    padding: 2.5rem;
+    border-radius: 8px; 
+    text-align: center;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3); 
+    transition: all 0.4s ease-in-out;
 }
 
 .feature-card:hover {
-  background:rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(18px);
-  transform: translateY(-8px);
-  box-shadow: 0 16px 50px rgba(0, 50, 100, 0.25);
+    background: #3c3070; 
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+    border-color: #8a2be2; /* Accent border on hover */
 }
 
 .feature-card h3 {
-  color: #007bff;
-  margin-bottom: 0.8rem;
+    color: #8a2be2; /* Main accent color */
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    font-weight: 700;
 }
 
-/* LOGIN BUTTONS */
+.feature-card p {
+    color: #c5c1e0; 
+    font-weight: 300;
+}
+
+/* ---------------------------------- */
+/* LOGIN BUTTONS (Clear Call-to-Action) */
+/* ---------------------------------- */
 .login-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-top: 2.5rem;
-  flex-wrap: wrap;
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 5rem;
+    flex-wrap: wrap;
 }
 
 .login-btn {
-  background: #007bff;
-  color: white;
-  text-decoration: none;
-  font-weight: 700;
-  padding: 0.9rem 1.6rem;
-  border-radius: 10px;
-  transition: 0.25s ease-in-out;
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    background: #8a2be2; /* Main accent CTA color */
+    color: #fff; 
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.1rem;
+    padding: 0.9rem 2rem;
+    border-radius: 6px;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 6px 15px rgba(138, 43, 226, 0.5);
+    border: 1px solid transparent;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
 }
 
 .login-btn:hover {
-  background: #0056b3;
-  transform: translateY(-4px);
-  box-shadow: 0 8px 18px rgba(0, 123, 255, 0.42);
+    background: #7a1ee0; /* Slightly darker purple on hover */
+    color: #fff;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(138, 43, 226, 0.7);
 }
 
+/* ---------------------------------- */
 /* FOOTER */
+/* ---------------------------------- */
 footer {
-  text-align: center;
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.45);
-  margin-top: 3rem;
-  font-weight: 600;
-  color: #007bff;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
+    text-align: center;
+    padding: 1.5rem;
+    background: #181133;
+    margin-top: 5rem;
+    font-weight: 400;
+    color: #a0a0ff;
+    border-top: 1px solid #2f255c;
 }
 
+/* ---------------------------------- */
 /* RESPONSIVE */
-@media (max-width: 700px) {
-  nav ul.nav-links {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  header {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .features {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .login-buttons {
-    flex-direction: column;
-    gap: 0.8rem;
-  }
+/* ---------------------------------- */
+@media (max-width: 900px) {
+    .hero h2 {
+        font-size: 2.5rem;
+    }
+    .features {
+        gap: 2rem;
+    }
 }
-
-
-  </style>
-</head>
+@media (max-width: 700px) {
+    header {
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+    .hero h2 {
+        font-size: 2rem;
+    }
+    .features {
+        flex-direction: column;
+        align-items: center;
+    }
+    .feature-card {
+        flex: 1 1 100%;
+        max-width: 90%;
+        margin: 0 auto;
+    }
+    .login-buttons {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 0 1.5rem;
+    }
+    .login-btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+</style></head>
 <body>
   <header>
     <h1>CAMS Portal</h1>
