@@ -1,56 +1,40 @@
 <?php
 require_once 'config.php';
 
-// Check if the user is logged in and is a Teacher
-if (!isLoggedIn() || $_SESSION["user_role"] !== 'T') {
+if (!isLoggedIn() || $_SESSION['user_role'] !== 'S') {
     redirect('login.php');
 }
 
-// Get and validate input
-$subject_code = filter_input(INPUT_GET, 'subject_code', FILTER_SANITIZE_STRING);
-$session_date = filter_input(INPUT_GET, 'session_date', FILTER_SANITIZE_STRING);
+$student_roll = $_SESSION['roll_no'];
+$student_name = $_SESSION['name'] ?? '';
 
-if (empty($subject_code) || empty($session_date)) {
-    redirect('teacher_dashboard.php');
-}
-
-$students = [];
-$subject_name = "";
-$error = "";
-$class_filter = "";
-$stream_filter = "";
-
+/* -------- FETCH ATTENDANCE SUMMARY -------- */
 try {
-    // 1. Get subject name AND class/stream for filtering
-    $sql_subject_info = "SELECT subject_name, class, stream FROM subjects WHERE subject_code = :code";
-    $stmt_subject_info = $pdo->prepare($sql_subject_info);
-    $stmt_subject_info->bindParam(':code', $subject_code);
-    $stmt_subject_info->execute();
-    $subject_info = $stmt_subject_info->fetch(PDO::FETCH_ASSOC);
+    // Total sessions student has records for
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM attendance WHERE student_roll = :sr");
+    $stmt->execute([':sr' => $student_roll]);
+    $total_sessions = (int)$stmt->fetchColumn();
 
-    if (!$subject_info) {
-        throw new Exception("Subject not found or not fully configured.");
-    }
-    $subject_name = $subject_info['subject_name'];
-    $class_filter = $subject_info['class'];
-    $stream_filter = $subject_info['stream'];
-    
-    // 2. Fetch students list using the class/stream filters 
-   $sql_students = "SELECT DISTINCT s.student_id, u.roll_no, u.name, s.class, s.stream
-                 FROM students s
-                 JOIN users u ON s.roll_no = u.roll_no
-                 WHERE s.class = :class_filter AND s.stream = :stream_filter
-                 ORDER BY u.roll_no";
-    $stmt_students = $pdo->prepare($sql_students);
-    $stmt_students->bindParam(':class_filter', $class_filter);
-    $stmt_students->bindParam(':stream_filter', $stream_filter);
-    $stmt_students->execute();
-    $students = $stmt_students->fetchAll(PDO::FETCH_ASSOC);
+    // Total present sessions
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM attendance WHERE student_roll = :sr AND status = 'P'");
+    $stmt->execute([':sr' => $student_roll]);
+    $present_sessions = (int)$stmt->fetchColumn();
+
+    $attendance_percentage = $total_sessions > 0 ? round(($present_sessions / $total_sessions) * 100, 2) : 0;
+
+    // Fetch detailed attendance
+    $stmt = $pdo->prepare("
+        SELECT a.session_date, a.status, s.subject_code, s.subject_name
+        FROM attendance a
+        JOIN subjects s ON a.subject_id = s.id
+        WHERE a.student_roll = :sr
+        ORDER BY a.session_date DESC
+    ");
+    $stmt->execute([':sr' => $student_roll]);
+    $attendance_records = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
-    $error = "Database Error: Could not load class list. SQLSTATE[" . $e->getCode() . "]: " . $e->getMessage();
-} catch (Exception $e) {
-    $error = "Application Error: " . $e->getMessage();
+    die("Database Error: " . $e->getMessage());
 }
 ?>
 
@@ -58,62 +42,136 @@ try {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mark Attendance</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Student Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f2f4f8;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            background: #3498db;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+        }
+        .summary-boxes {
+            display: flex;
+            justify-content: space-between;
+            margin: 25px 0;
+        }
+        .box {
+            flex: 1;
+            margin: 0 10px;
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 18px;
+            text-align: center;
+            border-radius: 8px;
+        }
+        .box h3 {
+            color: #444;
+        }
+        .box p {
+            font-size: 28px;
+            margin: 8px 0 0 0;
+            font-weight: bold;
+        }
+        .red { color: #e74c3c; }
+        .green { color: #2ecc71; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 18px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background: #3498db;
+            color: white;
+        }
+        tr:nth-child(even) { background: #f9f9f9; }
+        .logout-btn {
+            float: right;
+            padding: 8px 14px;
+            border: 1px solid #c0392b;
+            color: #c0392b;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .logout-btn:hover {
+            background: #c0392b;
+            color: white;
+        }
+    </style>
 </head>
 <body>
-    <div class="dashboard-wrapper">
-        <div class="header-nav">
-            <h1>Mark Attendance: <?php echo htmlspecialchars($subject_name); ?> (<?php echo htmlspecialchars($subject_code); ?>)</h1>
-            <a href="teacher_dashboard.php" class="logout-link">← Back to Dashboard</a>
+
+<div class="container">
+    <a href="logout.php" class="logout-btn">Logout</a>
+    <h2>Welcome, <?php echo htmlspecialchars($student_name . " (" . $student_roll . ")"); ?></h2>
+
+    <h3 style="text-align:center; margin-top:20px;">Attendance Summary</h3>
+
+    <div class="summary-boxes">
+        <div class="box">
+            <h3>Total Sessions Marked</h3>
+            <p><?php echo $total_sessions; ?></p>
         </div>
-        
-        <h3>Session Date: <?php echo date('F j, Y', strtotime($session_date)); ?></h3>
-
-        <?php if (!empty($error)) : ?>
-            <div class="alert-danger"><?php echo $error; ?></div>
-        <?php endif; ?>
-
-        <?php if (empty($students)) : ?>
-            <div class="alert-danger">No students found for this class. (Filtering by Class: <?php echo htmlspecialchars($class_filter); ?> / Stream: <?php echo htmlspecialchars($stream_filter); ?>)</div>
-        <?php else : ?>
-            <form action="save_attendance.php" method="POST">
-                <input type="hidden" name="subject_code" value="<?php echo htmlspecialchars($subject_code); ?>">
-                <input type="hidden" name="session_date" value="<?php echo htmlspecialchars($session_date); ?>">
-
-                <table border="1" style="width:100%; border-collapse: collapse; margin-top: 20px;">
-                    <thead>
-                        <tr style="background-color: #f2f2f2;">
-                            <th style="padding: 10px;">Roll No</th>
-                            <th style="padding: 10px;">Student Name</th>
-                            <th style="padding: 10px;">Class</th>
-                            <th style="padding: 10px;">Stream</th> 
-                            <th style="padding: 10px;">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php foreach ($students as $student): ?>
-                    <tr>
-                        <td style="padding: 10px;"><?php echo htmlspecialchars($student['roll_no']); ?></td>
-                        <td style="padding: 10px;"><?php echo htmlspecialchars($student['name']); ?></td>
-                        <td style="padding: 10px;"><?php echo htmlspecialchars($student['class']); ?></td>
-                        <td style="padding: 10px;"><?php echo htmlspecialchars($student['stream']); ?></td>
-                        
-                        <td style="padding: 10px;">
-                            <label><input type="radio" name="status[<?php echo $student['roll_no']; ?>]" value="P" required> Present</label><br>
-                            <label><input type="radio" name="status[<?php echo $student['roll_no']; ?>]" value="A"> Absent</label>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                    </tbody>
-                </table>
-
-                <div style="margin-top: 20px;">
-                    <input type="submit" value="Save Attendance" class="btn">
-                </div>
-            </form>
-        <?php endif; ?>
+        <div class="box">
+            <h3>Sessions Present</h3>
+            <p><?php echo $present_sessions; ?></p>
+        </div>
+        <div class="box">
+            <h3>Attendance Percentage</h3>
+            <p class="<?php echo ($attendance_percentage < 75) ? 'red' : 'green'; ?>">
+                <?php echo $attendance_percentage; ?>%
+            </p>
+        </div>
     </div>
+
+    <h3 style="text-align:center;">Detailed Attendance History</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Subject Code</th>
+                <th>Subject Name</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+        <?php if (empty($attendance_records)) : ?>
+            <tr><td colspan="4">No attendance records found.</td></tr>
+        <?php else: ?>
+            <?php foreach ($attendance_records as $row): ?>
+            <tr>
+                <td><?php echo htmlspecialchars($row['session_date']); ?></td>
+                <td><?php echo htmlspecialchars($row['subject_code']); ?></td>
+                <td><?php echo htmlspecialchars($row['subject_name']); ?></td>
+                <td><?php echo $row['status'] === 'P' ? '✅ Present' : '❌ Absent'; ?></td>
+            </tr>
+            <?php endforeach; ?>
+        <?php endif; ?>
+        </tbody>
+    </table>
+
+</div>
+
 </body>
 </html>

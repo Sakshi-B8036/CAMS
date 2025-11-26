@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'config.php';
+<<<<<<< HEAD
 
 // Ensure only Admin can access this page
 if (!isLoggedIn() || $_SESSION["user_role"] !== 'A') {
@@ -145,11 +146,18 @@ try {
     $teachers = [];
     $error .= " | Error fetching system data: " . $e->getMessage();
 }
+=======
+if (!isLoggedIn() || $_SESSION["user_role"] !== 'A') {
+    redirect('login.php');
+}
+$admin_name = $_SESSION["name"];
+>>>>>>> 622b4159278408dca9ceac0839687e8dc5e3fb37
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<<<<<<< HEAD
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
@@ -350,13 +358,58 @@ try {
             <h1>CAMS Admin Dashboard</h1>
             <a href="logout.php" class="logout-link">Logout</a>
         </div>
+=======
+<meta charset="UTF-8">
+<title>Admin Dashboard | CAMS</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: linear-gradient(to right, #74617c, #3498db);
+    color: white;
+}
+.container {
+    max-width: 900px;
+    margin: 40px auto;
+    text-align: center;
+}
+h1 { color: #455462ff; }
+.dashboard-btn {
+    display: block;
+    background: rgba(0,0,0,0.3);
+    padding: 15px;
+    margin: 15px auto;
+    width: 60%;
+    border-radius: 8px;
+    font-size: 18px;
+    color: white;
+    text-decoration: none;
+    transition: 0.3s;
+}
+.dashboard-btn:hover {
+    background: #1abc9c;
+    transform: translateY(-3px);
+}
+.logout {
+    margin-top: 30px;
+    display: inline-block;
+    padding: 10px 20px;
+    background: #e74c3c;
+    border-radius: 6px;
+    color: white;
+    text-decoration: none;
+}
+.logout:hover { background: #c0392b; }
+</style>
+</head>
+<body>
+>>>>>>> 622b4159278408dca9ceac0839687e8dc5e3fb37
 
-        <?php if (!empty($error)): ?>
-            <div class="alert alert-danger"><?php echo $error; ?></div>
-        <?php elseif (!empty($success)): ?>
-            <div class="alert alert-success"><?php echo $success; ?></div>
-        <?php endif; ?>
+<div class="container">
+    <h1>Welcome Admin, <?php echo $admin_name; ?></h1>
+    <p>Select an action below:</p>
 
+<<<<<<< HEAD
         <div class="dashboard-actions">
             <button class="action-button" onclick="showPanel('user_management_panel')">Add Teacher/Student</button>
             <button class="action-button" onclick="showPanel('subject_management_panel')">Manage Subjects</button>
@@ -488,5 +541,16 @@ try {
             toggleStudentFields();
         });
     </script>
+=======
+    <a class="dashboard-btn" href="add_student.php">➕ Add Student</a>
+    <a class="dashboard-btn" href="add_teacher.php">👨‍🏫 Add Teacher</a>
+    <a class="dashboard-btn" href="manage_subjects.php">📘 Manage Subjects</a>
+    <a class="dashboard-btn" href="view_summary.php">📊 View Attendance Summary</a>
+    <a class="dashboard-btn" href="view_messages.php">📩 View Contact Messages</a>
+
+    <a class="logout" href="logout.php">Logout</a>
+</div>
+
+>>>>>>> 622b4159278408dca9ceac0839687e8dc5e3fb37
 </body>
 </html>
