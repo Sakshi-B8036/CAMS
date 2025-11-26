@@ -14,10 +14,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($name) || empty($email) || empty($subject) || empty($message)) {
         $error = "⚠️ All fields are required.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = "⚠️ Please enter a valid email address.";
+        $error = "⚠️ Invalid email address.";
     } else {
         try {
-            $sql = "INSERT INTO contact_messages (name, email, subject, message) VALUES (:name, :email, :subject, :message)";
+            $sql = "INSERT INTO contact_messages (name, email, subject, message) 
+                    VALUES (:name, :email, :subject, :message)";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([
                 ':name' => $name,
@@ -25,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 ':subject' => $subject,
                 ':message' => $message
             ]);
-            $success = "✅ Message sent successfully! We’ll get back to you soon.";
+            $success = "✅ Message sent successfully!";
         } catch (PDOException $e) {
             $error = "Database Error: " . $e->getMessage();
         }
@@ -38,182 +39,220 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
   <meta charset="UTF-8">
   <title>Contact Us | CAMS</title>
+
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
-        background: linear-gradient(to top right, #05528dff 0%, #cbccd6ff 100%);
-      color: #fff;
-    }
+/* ============================================= */
+/* GLOBAL RESET + BASE */
+/* ============================================= */
+body {
+    font-family: 'Poppins', 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f4f6f9;
+    color: #1f2937;
+}
 
-    header {
-       background: rgba(255, 255, 255, 0.4);
-      color: white;
-      padding: 1rem 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-    }
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
 
-    header h1 {
-      margin: 0;
-      font-size: 1.8rem;
-      color: #007bff;
-    }
+/* ============================================= */
+/* HEADER */
+/* ============================================= */
+header {
+    background: #1a4b84;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
 
-    nav ul.nav-links {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
+header h1 {
+    color: #fff;
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
 
-    nav ul.nav-links li a {
-      color: white;
-      text-decoration: none;
-      font-weight: 600;
-      padding: 0.4rem 0.8rem;
-      border-radius: 4px;
-      transition: background-color 0.3s ease;
-    }
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 2rem;
+    margin: 0;
+}
 
-    nav ul.nav-links li a:hover,
-    nav ul.nav-links li a.active {
-      background-color: #007bff;
-      color: white;
-    }
+nav a {
+    text-decoration: none;
+    font-weight: 500;
+    color: #e5e7eb;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    transition: 0.3s ease;
+}
 
-    .container {
-      max-width: 700px;
-      margin: 2rem auto;
-      background: linear-gradient(to top right, #05528dff 0%, #cbccd6ff 100%);
-      padding: 2rem;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    }
+nav a:hover,
+nav .active {
+    background: #245fa6;
+    color: #fff;
+}
 
-    h2 {
-      text-align: center;
-      color: #007bff;
-    }
+/* ============================================= */
+/* CONTACT PAGE SECTION */
+/* ============================================= */
+.contact-section {
+    max-width: 700px;
+    margin: 4rem auto;
+    padding: 3rem;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    animation: fadeIn 0.5s ease-in-out;
+}
 
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
+.contact-section h2 {
+    text-align: center;
+    color: #1a4b84;
+    font-size: 2.4rem;
+    margin-bottom: 1rem;
+    font-weight: 800;
+}
 
-    input, textarea {
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
-      font-size: 1rem;
-      width: 100%;
-      box-sizing: border-box;
-    }
+.contact-section p {
+    text-align: center;
+    color: #4b5563;
+    font-size: 1rem;
+    margin-bottom: 2rem;
+}
 
-    input:focus, textarea:focus {
-      outline: 2px solid #007bff;
-      background-color: #f9f9f9;
-      color: #000;
-    }
+/* ============================================= */
+/* FORM */
+/* ============================================= */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
 
-    button {
-      background: #1abc9c;
-      color: white;
-      padding: 10px;
-      border: none;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
+input, textarea {
+    width: 100%;
+    padding: 0.9rem;
+    border-radius: 8px;
+    border: 1.5px solid #cbd5e1;
+    font-size: 1rem;
+    transition: 0.3s ease;
+}
 
-    button:hover {
-      background: #148f77;
-    }
+input:focus,
+textarea:focus {
+    border-color: #1a4b84;
+    box-shadow: 0 0 0 3px rgba(26,75,132,0.2);
+    outline: none;
+}
 
-    .alert {
-      text-align: center;
-      padding: 10px;
-      margin-bottom: 10px;
-      border-radius: 5px;
-      font-weight: 600;
-    }
+textarea {
+    height: 140px;
+    resize: none;
+}
 
-    .alert-success {
-      background-color: #2ecc71;
-      color: white;
-    }
+/* BUTTON */
+button {
+    padding: 0.9rem;
+    background: #1a4b84;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
 
-    .alert-danger {
-      background-color: #e74c3c;
-      color: white;
-    }
+button:hover {
+    background: #245fa6;
+    transform: translateY(-3px);
+}
 
-    footer {
-      text-align: center;
-      padding: 1rem;
-      background: rgba(0, 0, 0, 0.3);
-      color: white;
-      margin-top: 3rem;
-    }
+/* ALERT BOXES */
+.alert {
+    padding: 0.9rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-weight: 600;
+}
 
-    footer p:hover {
-      cursor: pointer;
-      color: #4d8bc8;
-    }
+.alert-danger {
+    background: #ffe5e5;
+    color: #b30000;
+    border: 1px solid #ffb3b3;
+}
 
-    @media (max-width: 700px) {
-      nav ul.nav-links {
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-      header {
-        flex-direction: column;
-        gap: 1rem;
-      }
-    }
+.alert-success {
+    background: #e6f4ff;
+    color: #1a4b84;
+    border: 1px solid #b6dcff;
+}
+
+/* ANIMATION */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* FOOTER */
+footer {
+    text-align: center;
+    padding: 1.5rem;
+    margin-top: 5rem;
+    background: #1a4b84;
+    color: #fff;
+    font-size: 0.95rem;
+}
+
   </style>
 </head>
+
 <body>
-  <header>
-    <h1>CAMS Portal</h1>
-    <nav>
-      <ul class="nav-links">
-        <li><a href="index.php">Home</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="team.php">Our Team</a></li>
-        <li><a href="contact.php" class="active">Contact</a></li>
-      </ul>
-    </nav>
-  </header>
 
-  <div class="container">
-    <h2>📬 Contact Us</h2>
-    <p style="text-align:center;">We’d love to hear from you! Fill out the form below, and our team will respond as soon as possible.</p>
+<header>
+  <h1>CAMS Portal</h1>
+  <nav>
+    <ul>
+      <li><a href="index.php">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="team.php">Our Team</a></li>
+      <li><a href="contact.php" class="active">Contact</a></li>
+    </ul>
+  </nav>
+</header>
 
-    <?php if (!empty($error)): ?>
-      <div class="alert alert-danger"><?php echo $error; ?></div>
-    <?php elseif (!empty($success)): ?>
-      <div class="alert alert-success"><?php echo $success; ?></div>
-    <?php endif; ?>
+<div class="contact-section">
 
-    <form action="contact.php" method="POST">
-      <input type="text" name="name" placeholder="Your Name" required>
-      <input type="email" name="email" placeholder="Your Email" required>
-      <input type="text" name="subject" placeholder="Subject" required>
-      <textarea name="message" rows="5" placeholder="Your Message..." required></textarea>
-      <button type="submit">Send Message</button>
-    </form>
-  </div>
+  <h2>📬 Contact Us</h2>
+  <p>Send us a message and our team will get back to you soon.</p>
 
-  <footer>
-    <p>© 2025 CAMS | College Attendance Management System | All Rights Reserved</p>
-  </footer>
+  <?php if (!empty($error)): ?>
+    <div class="alert alert-danger"><?php echo $error; ?></div>
+  <?php elseif (!empty($success)): ?>
+    <div class="alert alert-success"><?php echo $success; ?></div>
+  <?php endif; ?>
+
+  <form method="POST">
+    <input type="text" name="name" placeholder="Your Name" required>
+    <input type="email" name="email" placeholder="Your Email" required>
+    <input type="text" name="subject" placeholder="Subject" required>
+    <textarea name="message" placeholder="Your Message..." required></textarea>
+    <button type="submit">Send Message</button>
+  </form>
+</div>
+
+<footer>
+  <p>© 2025 CAMS | College Attendance Management System | All Rights Reserved</p>
+</footer>
+
 </body>
 </html>

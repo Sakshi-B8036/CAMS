@@ -230,7 +230,7 @@ try {
         <a href="view_attendance.php" 
            class="btn btn-secondary"
            style="width: auto;">
-           📅 View Attendance Records & Reports
+           📅 View Attendance Records & Defaulters
         </a>
     </div>
 </body>

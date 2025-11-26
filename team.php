@@ -3,135 +3,163 @@
 <head>
   <meta charset="UTF-8">
   <title>Our Team | CAMS</title>
+
   <style>
+    /* GLOBAL */
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
       padding: 0;
-        background: linear-gradient(to top right, #05528dff 0%, #cbccd6ff 100%);
-      color: #333;
+      font-family: 'Poppins', 'Segoe UI', sans-serif;
+      background: #f4f6f9;   /* Light academic background */
+      color: #1f2937;
     }
 
+    /* HEADER */
     header {
-       background: rgba(255, 255, 255, 0.4);
-      color: white;
+      background: #1a4b84;
       padding: 1rem 2rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     }
 
     header h1 {
       margin: 0;
       font-size: 1.8rem;
-      color: #4d8bc8;
+      color: #ffffff;
+      font-weight: 700;
     }
 
+    /* NAVIGATION */
     nav ul.nav-links {
       list-style: none;
+      display: flex;
+      gap: 1.2rem;
       margin: 0;
       padding: 0;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
     }
 
     nav ul.nav-links li a {
-      color: white;
+      color: #e5e7eb;
       text-decoration: none;
       font-weight: 600;
-      padding: 0.4rem 0.8rem;
-      border-radius: 4px;
-      transition: background-color 0.3s ease;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      transition: 0.3s ease;
     }
 
     nav ul.nav-links li a:hover,
     nav ul.nav-links li a.active {
-      background-color: #007bff;
-      color: white;
-    }
-
-    .container {
-      max-width: 1000px;
-      margin: 2rem auto;
-      padding: 0 1rem;
-      text-align: center;
-      color: white;
-    }
-
-    h2 {
-      font-size: 2rem;
+      background: #245fa6;
       color: #fff;
-      margin-bottom: 1rem;
     }
 
+    /* CONTAINER */
+    .container {
+      max-width: 1100px;
+      margin: 3rem auto;
+      padding: 0 1.5rem;
+      text-align: center;
+    }
+
+    .container h2 {
+      font-size: 2.4rem;
+      color: #1a4b84;
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+
+    .container p {
+      font-size: 1.15rem;
+      color: #4b5563;
+      max-width: 850px;
+      margin: 0 auto 2.5rem auto;
+      line-height: 1.7;
+    }
+
+    /* TEAM GRID */
     .team-grid {
       display: flex;
-      justify-content: center;
-      gap: 1.5rem;
       flex-wrap: wrap;
-      margin-top: 2rem;
+      justify-content: center;
+      gap: 2rem;
     }
 
     .member-card {
-      background: rgba(215, 214, 214, 0.45);
-      border-radius: 10px;
-      padding: 1.5rem;
-      width: 280px;
-      text-align: center;
-      transition: all 0.3s ease;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+      width: 260px;
+      background: white;
+      padding: 1.8rem;
+      border-radius: 14px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.10);
+      transition: 0.3s ease;
+      animation: fadeIn 1s ease;
     }
 
     .member-card:hover {
-      background:rgba(255, 255, 255, 0.45);
-      transform: translateY(-8px);
+      transform: translateY(-6px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
     }
 
     .member-card h3 {
       margin: 0.5rem 0;
-      color: #007bff;
-    }
-
-    .member-card p {
-      font-size: 0.95rem;
-      line-height: 1.5;
-      color: #f1f1f1;
-      margin: 0.3rem 0;
+      font-size: 1.3rem;
+      color: #1a4b84;
+      font-weight: 700;
     }
 
     .role {
       font-weight: bold;
-      color: #ffd700;
+      color: #fbbf24; /* Gold */
+      margin: 0.4rem 0 0.8rem;
     }
 
+    .member-card p {
+      color: #4b5563;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin: 0.3rem 0;
+    }
+
+    /* FOOTER */
     footer {
+      background: #1a4b84;
       text-align: center;
       padding: 1rem;
-      background: rgba(0, 0, 0, 0.3);
       color: white;
       margin-top: 3rem;
     }
 
     footer p:hover {
       cursor: pointer;
-      color: #4d8bc8;
+      color: #dbeafe;
     }
 
+    /* RESPONSIVE */
     @media (max-width: 700px) {
-      nav ul.nav-links {
-        flex-direction: column;
-        gap: 0.5rem;
-      }
       header {
         flex-direction: column;
         gap: 1rem;
       }
+      nav ul.nav-links {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
     }
+
+    /* ANIMATION */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
   </style>
 </head>
+
 <body>
+
+  <!-- HEADER -->
   <header>
     <h1>CAMS Team</h1>
     <nav>
@@ -144,18 +172,20 @@
     </nav>
   </header>
 
+  <!-- TEAM SECTION -->
   <main class="container">
     <h2>Meet the Project Team</h2>
-    <p>Our dedicated team has worked together to design, develop, and deploy the College Attendance Management System (CAMS) — a powerful, efficient, and user-friendly solution for academic institutions.</p>
+    <p>Our dedicated team collaborated to build the College Attendance Management System (CAMS), ensuring a reliable, efficient, and modern solution for colleges.</p>
 
     <div class="team-grid">
+
       <!-- Member 1 -->
       <div class="member-card">
         <h3>Shivam Joshi</h3>
         <p><strong>Roll No:</strong> 2472012</p>
         <p><strong>Class:</strong> TYBCS (A)</p>
         <p class="role">Backend Developer</p>
-        <p>Responsible for backend logic, server-side scripting, and database management to ensure smooth system performance.</p>
+        <p>Developed backend logic, server APIs, and database integration ensuring secure and smooth system performance.</p>
       </div>
 
       <!-- Member 2 -->
@@ -164,7 +194,7 @@
         <p><strong>Roll No:</strong> 2472013</p>
         <p><strong>Class:</strong> TYBCS (A)</p>
         <p class="role">Frontend Developer</p>
-        <p>Focuses on the user interface design, responsiveness, and visual experience of CAMS using HTML, CSS, and JavaScript.</p>
+        <p>Designed the user interface and built responsive layouts using HTML, CSS, and JavaScript.</p>
       </div>
 
       <!-- Member 3 -->
@@ -173,7 +203,7 @@
         <p><strong>Roll No:</strong> 2472014</p>
         <p><strong>Class:</strong> TYBCS (A)</p>
         <p class="role">Database Administrator</p>
-        <p>Manages the CAMS database, ensuring data accuracy, integrity, and smooth interaction between the frontend and backend.</p>
+        <p>Maintained the database structure, optimized queries, and ensured accurate data flow.</p>
       </div>
 
       <!-- Member 4 -->
@@ -182,13 +212,16 @@
         <p><strong>Roll No:</strong> 2472015</p>
         <p><strong>Class:</strong> TYBCS (A)</p>
         <p class="role">Project Designer & Tester</p>
-        <p>Handles system testing, documentation, and project design layout, ensuring quality and user satisfaction.</p>
+        <p>Managed UI flow, documentation, and performed thorough testing for user experience and quality control.</p>
       </div>
+
     </div>
   </main>
 
+  <!-- FOOTER -->
   <footer>
     <p>© 2025 CAMS | Developed by Team TYBCS(A) | All Rights Reserved</p>
   </footer>
+
 </body>
 </html>

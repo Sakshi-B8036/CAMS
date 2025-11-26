@@ -16,6 +16,7 @@ $total_sessions = 0;
 $sessions_present = 0;
 $attendance_percentage = "0.0";
 $history_data = [];
+$warning_data = []; // ⬅️ NEW: Initialize warning data array
 
 try {
     // 1. CRITICAL: Get the student_id from the students table using the roll_no
@@ -26,7 +27,7 @@ try {
     $student_id = $stmt_get_id->fetchColumn();
 
     if ($student_id) {
-        // 2. QUERY FOR SUMMARY - Filter by the found student_id
+        // 2. QUERY FOR SUMMARY
         $sql_summary = "SELECT 
                             COUNT(status) AS total_sessions,
                             SUM(CASE WHEN status = 'P' THEN 1 ELSE 0 END) AS sessions_present
@@ -44,7 +45,7 @@ try {
             ? number_format(($sessions_present / $total_sessions) * 100, 1) 
             : "0.0";
         
-        // 3. QUERY FOR DETAILED HISTORY - Filter by the found student_id
+        // 3. QUERY FOR DETAILED HISTORY
         $sql_history = "SELECT a.session_date, a.status, s.subject_name, s.subject_code 
                         FROM attendance a
                         JOIN subjects s ON a.subject_code = s.subject_code
@@ -54,6 +55,17 @@ try {
         $stmt_history->bindParam(':s_id', $student_id);
         $stmt_history->execute();
         $history_data = $stmt_history->fetchAll(PDO::FETCH_ASSOC);
+
+        // 4. ⬅️ NEW: QUERY FOR DEFAULTER WARNINGS
+        $sql_warnings = "SELECT dw.subject_code, s.subject_name, dw.warning_date 
+                         FROM defaulter_warnings dw
+                         JOIN subjects s ON dw.subject_code = s.subject_code
+                         WHERE dw.roll_no = :roll_no
+                         ORDER BY dw.warning_date DESC, dw.subject_code ASC";
+        $stmt_warnings = $pdo->prepare($sql_warnings);
+        $stmt_warnings->bindParam(':roll_no', $student_roll);
+        $stmt_warnings->execute();
+        $warning_data = $stmt_warnings->fetchAll(PDO::FETCH_ASSOC);
 
     } else {
         $error = "Error: Student roll number **{$student_roll}** is not linked in the `students` table. Contact admin.";
@@ -123,6 +135,36 @@ try {
         .logout-link:hover {
             background-color: #c00f0fff;
             color: white;
+        }
+
+        /* ⬅️ NEW: Warning Alert Styling */
+        .warning-alert {
+            background-color: #fff3cd; /* Light yellow background */
+            color: #856404; /* Dark yellow text */
+            border: 1px solid #ffeeba;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            text-align: left;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(255, 193, 7, 0.2);
+        }
+        .warning-alert h3 {
+            margin-top: 0;
+            color: #dc3545; /* Red color for urgency */
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+        .warning-list {
+            list-style-type: '🚨 '; /* Custom list marker */
+            padding-left: 20px;
+        }
+        .warning-list li {
+            margin-bottom: 5px;
+            padding-left: 5px;
+        }
+        .warning-list strong {
+            color: #dc3545;
         }
 
 
@@ -233,6 +275,20 @@ try {
             <a href="logout.php" class="logout-link">Logout</a>
         </div>
         
+        <?php if (!empty($warning_data)): ?>
+            <div class="warning-alert">
+                <h3>⚠️ Urgent Warning: Defaulter List Imminent!</h3>
+                <p>You have received **official warnings** for the subjects listed below due to **attendance being below the required 75% threshold**. You are advised to immediately meet with the concerned faculty.</p>
+                <ul class="warning-list">
+                    <?php foreach ($warning_data as $warning): ?>
+                        <li>
+                            **<?php echo htmlspecialchars($warning['subject_name']); ?> (<?php echo htmlspecialchars($warning['subject_code']); ?>)** — Warning Issued on: <strong><?php echo date('M j, Y', strtotime($warning['warning_date'])); ?></strong>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
+
         <?php if (!empty($error)): ?>
             <div class="alert-danger"><?php echo $error; ?></div>
         <?php endif; ?>
